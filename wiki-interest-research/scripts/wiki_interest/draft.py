@@ -346,7 +346,8 @@ def build_draft(summary: dict) -> dict:
     wide = [f"{lang_name(l)}-language Wikipedia is read in {MULTI_COUNTRY[l]}" for l in langs_all if l in MULTI_COUNTRY]
     if wide:
         limits.append("; ".join(wide) + ".")
-    limits.append("Pageviews measure attention (curiosity, study, news), not willingness to pay.")
+    limits.append("Pageviews measure attention (curiosity, study, news), not willingness to pay, and they say "
+                  "nothing about attention on other platforms (social media feeds, search, video).")
 
     draft = {
         "direct_answer": direct_answer(summary, results, multi),

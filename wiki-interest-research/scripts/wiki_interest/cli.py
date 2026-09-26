@@ -96,7 +96,8 @@ def reporting_rules(summary: dict) -> list[str]:
         "Say 'share of <language> Wikipedia views' for growth_yoy_pct (never 'views fell X%'); raw views are "
         "growth_yoy_raw_pct. growth_yoy_pct already removes wiki-wide traffic changes.",
         "Name results by language edition ('Polish-language Wikipedia'), never as a country.",
-        "Never guess causes of spikes or trends (news, events, seasons, algorithms); report only what 'draft' says.",
+        "Never guess causes of spikes or trends (news, events, seasons, algorithms, the user's feed); report only "
+        "what 'draft' says.",
         "Do not generalise across languages ('all', 'every') unless every series says the same in 'draft'.",
         "Do not quote p-values; use the plain confidence reasons from 'draft'.",
         "views_per_million is 'views per million pageviews of that wiki' (salience), not per capita.",
