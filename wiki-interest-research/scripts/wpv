@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Launcher for the wiki-interest-research CLI.
+# First run creates an isolated virtualenv from pinned requirements (needs python3 >= 3.11 and network);
+# later runs start instantly. Re-installs automatically when requirements.txt changes.
+set -euo pipefail
+SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VENV="${WPV_VENV:-$SKILL_DIR/.venv}"
+REQ="$SKILL_DIR/scripts/requirements.txt"
+PY="${WPV_PYTHON:-python3}"
+
+if [ ! -x "$VENV/bin/python" ] || ! cmp -s "$REQ" "$VENV/.requirements.installed"; then
+  if ! "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' 2>/dev/null; then
+    echo '{"status": "error", "error": "Python 3.11+ is required", "hint": "Install Python 3.11+ or set WPV_PYTHON=/path/to/python3.11"}'
+    exit 2
+  fi
+  echo "[wpv] first run: creating environment in $VENV (about a minute)..." >&2
+  "$PY" -m venv "$VENV" >&2
+  "$VENV/bin/python" -m pip install --quiet --disable-pip-version-check -r "$REQ" >&2
+  cp "$REQ" "$VENV/.requirements.installed"
+fi
+
+export MPLBACKEND=Agg
+export MPLCONFIGDIR="${MPLCONFIGDIR:-$VENV/.mplconfig}"
+export PYTHONPATH="$SKILL_DIR/scripts${PYTHONPATH:+:$PYTHONPATH}"
+exec "$VENV/bin/python" -m wiki_interest "$@"
