@@ -35,7 +35,7 @@ _EN = {
         "last 12 months with the previous 12 using the article's share of all pageviews of that Wikipedia, so "
         "wiki-wide traffic shifts are neutralised; raw views show audience size. Confidence combines data "
         "history, volume, a seasonal Mann-Kendall trend test, robustness to spike days, concentration of "
-        "views, agreement of raw and normalised growth, and a desktop-only bot check."),
+        "views and a desktop-only bot check."),
     "limits_text": (
         "Pageviews measure attention to an article, not purchase intent or willingness to pay. A language "
         "edition is not a country, and many people read Wikipedia in English instead of their own language. "
@@ -72,7 +72,7 @@ _UK = {
         "останні 12 місяців із попередніми 12 за часткою статті в усіх переглядах відповідної Вікіпедії, тож "
         "зміни загального трафіку вікі нейтралізовано; абсолютні перегляди показують розмір аудиторії. Довіра "
         "враховує тривалість даних, обсяг, сезонний тест Манна-Кендалла, стійкість до пікових днів, концентрацію "
-        "переглядів, узгодженість абсолютного й нормалізованого зростання та перевірку на ботів (лише desktop)."),
+        "переглядів та перевірку на ботів (лише desktop)."),
     "limits_text": (
         "Перегляди вимірюють увагу до статті, а не намір купити чи готовність платити. Мовний розділ — це не "
         "країна, і багато людей читають Вікіпедію англійською замість рідної мови. Покриття та назви статей "
@@ -109,7 +109,7 @@ _PL = {
         "ostatnie 12 miesięcy z poprzednimi 12 na podstawie udziału artykułu we wszystkich odsłonach danej "
         "Wikipedii, co neutralizuje zmiany ruchu całej wiki; surowe wyświetlenia pokazują wielkość odbiorców. "
         "Pewność łączy długość danych, wolumen, sezonowy test Manna-Kendalla, odporność na dni szczytowe, "
-        "koncentrację wyświetleń, zgodność wzrostu surowego i znormalizowanego oraz test botów (tylko desktop)."),
+        "koncentrację wyświetleń oraz test botów (tylko desktop)."),
     "limits_text": (
         "Wyświetlenia mierzą uwagę poświęconą artykułowi, a nie zamiar zakupu. Wersja językowa to nie kraj, a "
         "wiele osób czyta Wikipedię po angielsku zamiast w swoim języku. Pokrycie i nazwy artykułów różnią się "
@@ -145,8 +145,8 @@ _CS = {
         "Zobrazení zahrnují přesměrování na článek a pouze lidský provoz (agent=user). Růst porovnává posledních "
         "12 měsíců s předchozími 12 podle podílu článku na všech zobrazeních dané Wikipedie, takže změny provozu "
         "celé wiki jsou neutralizovány; absolutní zobrazení ukazují velikost publika. Důvěra kombinuje délku dat, "
-        "objem, sezónní Mann-Kendallův test, odolnost vůči špičkám, koncentraci zobrazení, shodu absolutního a "
-        "normalizovaného růstu a kontrolu botů (pouze desktop)."),
+        "objem, sezónní Mann-Kendallův test, odolnost vůči špičkám, koncentraci zobrazení a "
+        "kontrolu botů (pouze desktop)."),
     "limits_text": (
         "Zobrazení měří pozornost věnovanou článku, ne úmysl nakoupit. Jazyková verze není země a mnoho lidí čte "
         "Wikipedii anglicky místo ve svém jazyce. Pokrytí a názvy článků se mezi verzemi liší; chybějící články "
@@ -182,8 +182,8 @@ _DE = {
         "vergleicht die letzten 12 Monate mit den vorherigen 12 anhand des Anteils des Artikels an allen Aufrufen "
         "der jeweiligen Wikipedia, sodass Wiki-weite Traffic-Änderungen neutralisiert sind; absolute Aufrufe "
         "zeigen die Publikumsgröße. Die Belastbarkeit kombiniert Datenhistorie, Volumen, einen saisonalen "
-        "Mann-Kendall-Test, Robustheit gegenüber Spitzentagen, Konzentration, Übereinstimmung von absolutem und "
-        "normalisiertem Wachstum sowie eine Bot-Prüfung (nur Desktop)."),
+        "Mann-Kendall-Test, Robustheit gegenüber Spitzentagen, Konzentration sowie "
+        "eine Bot-Prüfung (nur Desktop)."),
     "limits_text": (
         "Aufrufe messen Aufmerksamkeit für einen Artikel, nicht Kaufabsicht. Eine Sprachversion ist kein Land, und "
         "viele Menschen lesen Wikipedia auf Englisch statt in ihrer Sprache. Abdeckung und Titel unterscheiden sich "
@@ -220,7 +220,7 @@ _ES = {
         "los últimos 12 meses con los 12 anteriores usando la cuota del artículo en todas las vistas de esa "
         "Wikipedia, de modo que se neutralizan los cambios de tráfico de toda la wiki; las vistas absolutas "
         "muestran el tamaño de la audiencia. La confianza combina historial, volumen, una prueba estacional de "
-        "Mann-Kendall, robustez ante picos, concentración, coherencia entre crecimiento absoluto y normalizado y "
+        "Mann-Kendall, robustez ante picos, concentración y "
         "un control de bots (solo escritorio)."),
     "limits_text": (
         "Las vistas miden atención a un artículo, no intención de compra. Una edición lingüística no es un país, y "
@@ -258,7 +258,7 @@ _FR = {
         "croissance compare les 12 derniers mois aux 12 précédents selon la part de l'article dans toutes les vues "
         "de cette Wikipédia, ce qui neutralise les variations de trafic de tout le wiki ; les vues brutes indiquent "
         "la taille de l'audience. La confiance combine l'historique, le volume, un test saisonnier de "
-        "Mann-Kendall, la robustesse aux pics, la concentration, la cohérence brut/normalisé et un contrôle des "
+        "Mann-Kendall, la robustesse aux pics, la concentration et un contrôle des "
         "robots (bureau uniquement)."),
     "limits_text": (
         "Les vues mesurent l'attention portée à un article, pas l'intention d'achat. Une édition linguistique "

@@ -11,6 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
+from matplotlib.ticker import MaxNLocator  # noqa: E402
 
 from .i18n import labels  # noqa: E402
 from .langs import lang_name  # noqa: E402
@@ -102,6 +103,7 @@ def growth_chart(results: list[dict], colors: dict[str, str], path: Path, lang: 
     hi = max([0] + [r["metrics"]["growth_yoy_pct"] for r in rows])
     span = max(hi - lo, 10.0)
     ax.set_xlim(lo - (span * 0.05 if lo < 0 else 2), hi + span * 0.75)
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=5))
     ax.set_xlabel(L["growth_axis"])
     ax.grid(axis="x", color=GRID, linewidth=0.6)
     ax.set_axisbelow(True)

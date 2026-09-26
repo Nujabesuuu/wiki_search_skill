@@ -1,0 +1,188 @@
+{
+ "iteration": 2,
+ "model": "claude-haiku-4.5",
+ "grader": "claude-opus (strict rubric)",
+ "runs": {
+  "ambiguous-mercury": {
+   "score": 81,
+   "breakdown": {
+    "A": 14,
+    "B": 18,
+    "C": 15,
+    "D": 12,
+    "E": 10,
+    "F": 7,
+    "G": 5
+   },
+   "deductions": [
+    "No automatic deductions. Every number in the answer matches summary.json. The flagged '0.6' is a weight inside a suggested --weights command, not a data claim. Ambiguity was not silent: the planet is named in the first sentence and the element and Roman god are offered, so the -15 does not apply. No PDF was requested, so the -15 does not apply either."
+   ],
+   "problems": [
+    "Ambiguity is under-disclosed. The answer never says that 'Mercury' is ambiguous or that the tool picked the planet by default. The only signals are '(the planet)' in parentheses and alternatives buried in the last follow-up bullet. The draft says 'This name is ambiguous. State the analysed meaning...', but that sentence was dropped. For a question with no hint toward the planet, the element (Q925) is just as plausible, so the answer should surface this prominently or ask first.",
+    "The articles actually measured (de: Merkur (Planet), fr: Mercure (planète)) are not named, even though draft.topics provides them.",
+    "The 'over the past 24 months' framing in the direct answer blurs the metric, which is last 12 months vs the previous 12. It is explained later, but the headline sentence mislabels the window slightly.",
+    "fr recent 3 months +1.3% is called 'a positive signal'. That overinterprets a small, unhedged 3-month change on a Medium-confidence series.",
+    "The recommendation ('Don't invest in Mercury-focused content') is generic because the user gave no product context. It also speaks of 'German and French markets', which slides back toward country framing.",
+    "No PDF was offered, although SKILL.md says to offer one when not making it.",
+    "Follow-ups: 4 instead of 1-2, given as raw CLI commands with unexplained QIDs and weight syntax (jargon for a founder). The alternative-meaning follow-up suggests '--topic Q925' without --study/--add-topic, which would create a separate study instead of a comparison."
+   ]
+  },
+  "astronomy-followup": {
+   "score": 52,
+   "breakdown": {
+    "A": 14,
+    "B": 13,
+    "C": 10,
+    "D": 11,
+    "E": 12,
+    "F": 8,
+    "G": 4
+   },
+   "deductions": [
+    "-20 wrong data presented as data: turn-2 'Key Finding' says 'All recent 3-month reversals across all three editions show positive momentum ... the downward trend may be stabilizing'. summary.json has pl growth_recent_3m_pct = -9.1, which is the same direction as the decline, not a reversal. The answer itself prints -9.1% for Polish a few lines earlier. Only cs (+16.1) and uk (+7.7) reversed. The false premise also produces an overgeneralised 'stabilizing' conclusion. This is counted once and not stacked with the -15 overclaim deduction."
+   ],
+   "problems": [
+    "Factual error in the section labelled 'Key Finding': Polish recent 3 months is -9.1%, not a positive reversal. The cofounder-facing conclusion that the decline 'may be stabilizing' across all three rests on this false generalisation.",
+    "A failed check is omitted: cs has no_bot_signal ok=false and the flag possible_bot_traffic, because a desktop-only spike on 2026-07-13 looks automated. The draft's confidence line for cs includes this. The chat answer reduces cs confidence to 'smaller audience ... but clear trend', and the PDF says only 'Confidence Medium'.",
+    "Spikes are never mentioned in either turn, although all three series have has_spikes. uk has recurring September spikes every year, which dominate the PDF trend chart (104/M in 2023-09). pl has a 7.8x spike on 2025-09-21. The chart will prompt questions the answer does not address.",
+    "The user asked for three years, but the chat answer shows nothing that uses the longer window: trend_per_year_pct (-28.5 / -23.8 / -47.1) is only in the PDF table. The answer also never explains that the uk numbers are identical to turn 1 because YoY does not depend on the window, so a reader may suspect stale numbers.",
+    "The PDF gives no reasons for confidence (no failed-check wording), omits the recent-3-month reversals for cs and uk, and has an awkward double-parenthesis headline: 'declining (moderate evidence))'. The recommendation says 'Ukrainian shows larger decline but smaller audience', but uk (559/month) has a larger audience than cs (518/month).",
+    "The recommendation is generic ('validate demand directly'). With all three declining it does not say whether to go, not go or pick a market. The ranking commentary gives no weights.",
+    "Chart file paths are not given. Follow-ups are limited to 're-run in 3 months', with no offer such as comparing related topics (space, planets) or checking English Wikipedia readers in those countries.",
+    "The first `wpv report` call failed and needed a narrative edit and a re-run. This is minor inefficiency."
+   ]
+  },
+  "astronomy-uk-trust": {
+   "score": 62,
+   "breakdown": {
+    "A": 15,
+    "B": 18,
+    "C": 14,
+    "D": 12,
+    "E": 11,
+    "F": 7,
+    "G": 5
+   },
+   "deductions": [
+    "-20 wrong data presented as fact: the answer says the seasonal spikes fall on '3-4 вересня щороку', but summary.json has 2024-09-03 and 2025-09-02 (i.e. 2-3 September); '4 September' is not in the data"
+   ],
+   "problems": [
+    "Unsupported guess about the cause of the spikes: 'можливо, пов'язано з астрономічними подіями' comes right before the answer's own line 'Причини спайків не слід гадати', and draft explicitly says 'Do not guess their causes'. The guess is also probably wrong: a spike every year on 2-3 September matches the Ukrainian school year starting, which matters a lot for an educational-app decision and was missed",
+    "Wrong spike dates ('3-4 вересня' instead of 2024-09-03 / 2025-09-02). Spike ratios (3.6x, 3.9x, 7.1x) were dropped",
+    "The answer never says that 'interest in astronomy' is measured by a single article (draft.topics: 'Each language is measured with one article: uk: Астрономія'). For a whole course subject, that is a material proxy limitation",
+    "Seasonality is not addressed in a way useful to the decision. The chart shows a very high September 2024 (62.9 per million) and a step-down then plateau since mid-2025. The answer does not say the YoY decline is largely driven by the high late-2024 level, beyond repeating the draft's +7.7% recent line",
+    "The PDF does not explain trust: it shows only 'Довіра: Середня' and 'Впевненість середня'. There are no reasons (small audience, significant trend, spikes) and no recent-months reversal or spike information, even though the user's question was specifically about how much to trust the trend",
+    "PDF text defects: 'Рекомендація: Рекомендація:' is duplicated (the narrative recommendation itself starts with the label). There are Russianisms and wrong words ('сирові дані', 'прямий опит', 'частка переглядів wiki')",
+    "Ukrainian language quality in chat: 'Переглади' (x2), 'Сирові дані', 'українськомовній' (should be 'україномовній'), 'Деталі по мовам' (Russianism, and there is only one language). It would not go to a Ukrainian founder unchanged",
+    "More follow-ups than needed (3 research follow-ups plus 3 validation steps plus 3 evidence items), and the answer is somewhat long for a single-language result"
+   ]
+  },
+  "casual-stoicism": {
+   "score": 75,
+   "breakdown": {
+    "A": 14,
+    "B": 16,
+    "C": 12,
+    "D": 10,
+    "E": 11,
+    "F": 7,
+    "G": 5
+   },
+   "deductions": [
+    "No automatic deductions applied. The scope overclaims ('in Poland', 'your feed is giving you a misleading signal') are deducted under C rather than the -15 rule, because the trend strength itself (strong_decline) is in allowed_claims."
+   ],
+   "problems": [
+    "Mislabelled number: 'Current traffic: ~3,336 views per month'. 3,336 is the average over the last 12 months. The latest three months (Jun-Aug 2026) average about 2,240/month, so 'current' overstates present traffic by about 50%.",
+    "Scope overclaim: 'Your feed is giving you a misleading signal' and 'No, stoicism is not getting more popular in Poland'. Polish-Wikipedia pageviews can't confirm or refute a social feed, and they don't measure Poland as a country (English-Wikipedia, book, podcast and social consumption are all unmeasured). The language != country caveat only appears in a footnote, after a headline that says 'in Poland'.",
+    "Missed the shape of the curve. Nearly all of the drop happened between Sep 2024 and Aug 2025 (53 to 12.5 per million). Since Sep 2025 it has been roughly flat at 17-21 per million until a summer dip, and recent 3m YoY is only -8.5%. 'Falling sharply' and 'clearly declining' describe the YoY window correctly, but a founder would want to hear that the collapse is a year old and interest has mostly stabilised at a lower level.",
+    "The recommendation is presumptive and contradicts itself. The user gave no product context, yet the answer says 'Do not invest in stoicism as a growth topic' and the PDF says 'Not recommended for investment'. It then says 'validate demand directly before building'. It is an investment call made from attention data.",
+    "The chat answer never says that attention != willingness to pay (the draft 'limits' included it). It is only in the PDF's small-print method section.",
+    "False deliverable claim: the chat lists 'Monthly view volume' as a chart in the PDF, but the PDF has only the trend and YoY-growth charts. Chart file paths are not given.",
+    "PDF template leftovers: 'share of each Wikipedia's views' (only one wiki), 'Validate demand directly in the top option' (there is no set of options), a one-row 'Comparison' table, and the bottom ~40% of the page empty.",
+    "Tone is mismatched. A casual one-line question got a heavy report with H1/H2 headers. No explicit offer of follow-up analysis (e.g., check English Wikipedia or related articles like Marcus Aurelius / Seneca in pl, or longer history to see what happened in 2024)."
+   ]
+  },
+  "custom-criteria-yoga": {
+   "score": 27,
+   "breakdown": {
+    "A": 12,
+    "B": 13,
+    "C": 12,
+    "D": 11,
+    "E": 3,
+    "F": 6,
+    "G": 5
+   },
+   "deductions": [
+    "-20 wrong/hand-computed number presented as data: 'German ... gets approximately 43% more traffic than Spanish' - 8,224/5,710 = 1.440, i.e. 44% more; this figure is not in summary.json and was computed by hand against the skill's 'never compute numbers yourself' rule (checks.json also flags '43' as unmatched). The '125% more than Italian' figure is arithmetically right but equally untraceable to summary.json.",
+    "-15 claim stronger than the data allows: Direct Answer says 'all four markets show declining interest', but Italian-language Wikipedia's allowed_claims is only ['stable'] (direction 'flat'). SKILL.md explicitly forbids generalising ('all markets are falling') unless every series allows it."
+   ],
+   "problems": [
+    "Hand-computed comparative percentages ('43% more', '125% more'); 43% is wrong (should be 44%).",
+    "Direct answer overgeneralises 'all four markets show declining interest' though Italian is only 'roughly stable'; later text contradicts it ('declining or flat').",
+    "'much larger addressable audience' and 'significantly larger audience' overstate what Wikipedia pageviews in one language edition show; conflates article views with addressable market.",
+    "No trade-off vs momentum explained: draft.ranking's sensitivity line ('judged on momentum alone, Italian would lead') was dropped, and German's recent +1.9% vs Spanish -34.4% was not framed as a momentum argument. Ranking scores/order line from draft.ranking not reproduced.",
+    "No specific caveat that Spanish-language Wikipedia spans Spain plus Latin America (and German spans DE/AT/CH), which matters directly for a 'which market' localisation decision.",
+    "Spike days from draft (de 2025-05-10 3.6x; fr 2025-03-30 4.3x) omitted.",
+    "Mislabelled weights sentence: 'share and confidence equally weighted (15% and 10% respectively)' - they are not equal.",
+    "Italian confidence reason copied from draft ('trend is not statistically clear') while the underlying check says the multi-month trend IS significant (p=0.043) but YoY is flat - agent did not notice the contradiction.",
+    "No PDF built although the skill says to build one 'for a decision' and the scenario expects an English one-page PDF; no narrative.json, no report run.",
+    "No absolute paths to charts/CSV/study given; no runnable follow-ups offered (other weights, more languages, 36-month window).",
+    "Answer is long (about 4.7k chars) with the table and per-language sections duplicating the same numbers."
+   ]
+  },
+  "english-learning-audiences": {
+   "score": 4,
+   "breakdown": {
+    "A": 11,
+    "B": 12,
+    "C": 8,
+    "D": 8,
+    "E": 3,
+    "F": 7,
+    "G": 5
+   },
+   "deductions": [
+    "-20 wrong fact presented as data: Turkish is headed 'Highest Per-Capita Interest' and Priority 2 is justified by 'Highest per-capita interest (66 views per million)' and 'engagement per reader is strongest'. summary.json has uk views_per_million 120.0 vs tr 66.2, so Turkish is second. The recommendation rests on this false claim.",
+    "-15 claim stronger than the data allows: Ukrainian is called a 'clear, accelerating decline', but recent 3m is -8.0% vs YoY -13.5%, so nothing shows acceleration. Spanish (claim=decline) and Polish (claim=decline, Medium) are called 'Declining' / 'actively declining' without the required '(moderate evidence)' hedge.",
+    "-15 report requested ('prepare a short report') but no PDF: the agent never wrote narrative.json or ran `wpv report`, and checks.json shows reports=[] and narrative_verified=false."
+   ],
+   "problems": [
+    "No PDF even though the user asked for a report. E is almost empty.",
+    "Makes up its own priority order (de, tr, es, then uk and pl both 'not recommended') instead of draft.ranking (de, es, tr, uk, pl). It never states the weights (growth 40%, volume 25%, share 20%, confidence 15%) or the sensitivity note that Spanish leads on size alone. The 'ranking must be explained' trap was failed.",
+    "Invented qualitative claims not in the draft: 'Low variance suggests reliable demand', 'highly motivated niche', 'high conversion potential', 'engagement per reader is strongest', 'fighting market headwinds', 'decline may be bottoming out'. views_per_million is salience relative to wiki size, not per-reader engagement.",
+    "'High confidence (de, es, uk): ... trends confirmed across multiple statistical methods' is wrong for de, whose check says 'no clear trend (p=0.77)'. That confidence reflects stability, not a confirmed trend.",
+    "Raw view changes (growth_yoy_raw_pct: de -7.2, es -28.8, tr -16.6, uk -35.4, pl -18.2) and wiki-wide changes from draft.per_series were dropped, though SKILL.md step 4.2 requires them.",
+    "The uneven basket is only half handled. The answer says pl/uk rely 'primarily' on the 'English language' article when they rely on it entirely. It then compares per-capita and ranks across different article sets without the caveat from summary.notes. It also never says the 'English language' article is a broad proxy that captures much more than learning intent; instead it asserts that it 'represents the broader interest in learning English'.",
+    "The direct answer is not first: the answer opens with a method summary, and the recommendation appears about 60% of the way down.",
+    "Talks of 'German and Turkish markets' and 'entering the Ukrainian market', drifting from language editions to countries or markets despite the limit it states.",
+    "'Recent upward momentum' for Turkish treats a single +15.6% recent-3-month figure (Medium confidence, YoY roughly stable, and the check says 'without spike days growth is -0.3%') as a momentum signal."
+   ]
+  },
+  "fasting-pl-cs": {
+   "score": 62,
+   "breakdown": {
+    "A": 11,
+    "B": 19,
+    "C": 13,
+    "D": 10,
+    "E": 13,
+    "F": 6,
+    "G": 5
+   },
+   "deductions": [
+    "-15 claim stronger than the data allows: the chat recommendation says the Czech decline plus the missing Polish article 'вказує на низьку актуальність теми в цих мовних спільнотах'. The PDF recommendation says 'вказує на знижену актуальність теми'. The Czech series has a median of 5 views/day and the volume check failed. For Polish, summary.json only supports 'no dedicated article', which the tool hint calls a signal of low coverage, not low relevance. The answer's own limit says many people read English Wikipedia. The chat also says 'відсутність контенту' for Polish, although only a dedicated article is missing."
+   ],
+   "problems": [
+    "It did not follow the SKILL rule for tiny articles. The Czech median is 5 views/day, below 10, and the rule is 'do not recommend from them. Broaden the topic and re-run once', for example with a basket 'intermittent fasting=Q1666254,Fasting'. The agent ran the study once and then built its recommendation on this tiny article.",
+    "It overclaimed that the topic has low relevance in these language communities. This is the -15 deduction above.",
+    "It ignored missing[].suggestions. The expected output allows a clearly labelled proxy such as 'Głodówka lecznicza', or at least an explanation of why the suggestions are not equivalent. The user heard nothing about them, and no proxy was offered as a follow-up.",
+    "The recommendation is a generic 'validate demand first'. It does not say what evidence would change the stance, and it does not warn that about 180 views/month is too small to base a product decision on.",
+    "The Ukrainian has quality defects. A Chinese character appears in the text ('польськомовної版 Wikipedia'). 'всплески' is a Russianism; the Ukrainian word is 'сплески'. 'Мовна видання' is a gender agreement error; it should be 'Мовне видання'. These make the answer unsendable as is.",
+    "'що все ще підтверджує загальний негативний тренд' is slightly stronger than the draft. The draft only says the change is not driven by spikes.",
+    "The PDF gives confidence Medium without the reason (low volume) in the findings. Its headline uses 'Чеський -47,7%' with no noun, and it mixes 'Wikipedia' and 'Вікіпедія'.",
+    "The follow-ups are generic: more languages, 3 years, other diet topics. The most relevant follow-ups are missing: a broader basket for Czech and a labelled Polish proxy."
+   ]
+  }
+ }
+}

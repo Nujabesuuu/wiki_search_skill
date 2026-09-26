@@ -153,3 +153,12 @@ def test_mark_recurring_distinguishes_seasonal_from_one_off():
     spikes = stats.mark_recurring(stats.detect_spikes(days, values), days, values)
     by_date = {s["peak_date"]: s["recurring_yearly"] for s in spikes}
     assert by_date["2024-09-02"] is True and by_date["2024-04-10"] is False
+
+
+def test_mark_recurring_ignores_noise_on_tiny_articles():
+    days = _days(date(2024, 1, 1), 800)
+    values = np.full(800, 5.0)
+    values[100] = 200            # real one-off spike
+    values[100 + 365] = 12       # a year later: 2.4x baseline but only +7 views -> noise
+    spikes = stats.mark_recurring(stats.detect_spikes(days, values), days, values)
+    assert spikes[0]["recurring_yearly"] is False

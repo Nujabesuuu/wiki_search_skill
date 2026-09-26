@@ -218,7 +218,7 @@ def mark_recurring(spikes: list[dict], days: Sequence[date], values: np.ndarray,
             center = peak + timedelta(days=365 * years)
             idx = [index[center + timedelta(days=k)] for k in range(-window, window + 1)
                    if center + timedelta(days=k) in index]
-            if idx and max(values[i] / base[i] for i in idx) >= ratio:
+            if idx and any(values[i] >= ratio * base[i] and values[i] - base[i] >= SPIKE_MIN_EXTRA for i in idx):
                 recurring = True
                 break
         sp["recurring_yearly"] = recurring

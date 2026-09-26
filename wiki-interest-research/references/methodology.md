@@ -44,8 +44,12 @@ windows only affect the charts.
 | `significance` | up/down: seasonal Mann-Kendall p < 0.05 in the same direction; flat: no clear trend |
 | `robust_to_spikes` | direction (up / flat / down, +-5% band) unchanged after removing spike days |
 | `concentration` | top-5 days <= 15% of last-12-month views |
-| `normalization_agrees` | raw and share growth point the same way, or differ by < 10 pp |
 | `no_bot_signal` | no desktop-only spikes |
+
+Flag `wiki_traffic_shift` (the whole wiki changed by >= 10% year over year) is informational: raw views and
+share then diverge by design, which is what normalisation is for, so it does not lower confidence. An earlier
+version treated the divergence as a failed check; evaluation showed it penalised exactly the cases where
+normalisation works (e.g. Turkish Wikipedia -16% overall, topic share flat).
 
 - **Insufficient**: no year-over-year value, or median < 5 views/day.
 - **High**: all checks pass.

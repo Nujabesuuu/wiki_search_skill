@@ -22,7 +22,7 @@ VOLUME_OK = 30                   # median daily views for a stable percentage es
 VOLUME_MIN = 5                   # below this: insufficient
 CONCENTRATION_MAX_PCT = 15.0     # max share of window views on the top-5 days
 P_VALUE_MAX = 0.05
-NORMALIZATION_GAP_PCT = 10.0     # raw vs normalized growth may differ this much before it matters
+WIKI_SHIFT_PCT = 10.0            # whole-wiki traffic change worth flagging
 
 ALLOWED_CLAIMS = {
     ("up", "strong"): ["strong_growth", "growth", "possible_growth"],
@@ -155,6 +155,7 @@ def analyze_series(topic: str, lang: str, articles: list, bundle: dict[str, dict
     direction = _direction(g)
     metrics = {
         "views_avg_month": int(round(monthly[last12].mean())),
+        "views_avg_month_recent_3m": int(round(monthly[-3:].mean())),
         "median_daily_views": round(median_daily, 1),
         "views_per_million": _sig(float(np.nansum(monthly[last12]) / tot[last12].sum() * 1e6)) if tot[last12].sum() else None,
         "growth_yoy_pct": g,
@@ -197,13 +198,6 @@ def analyze_series(topic: str, lang: str, articles: list, bundle: dict[str, dict
               f"without spike days growth is {metrics['growth_yoy_no_spikes_pct']:+.1f}% vs {g:+.1f}%")
     check("concentration", top5 * 100 <= CONCENTRATION_MAX_PCT,
           f"top-5 days = {metrics['top5_days_share_pct']}% of last-12-month views")
-    raw_dir = _direction(metrics["growth_yoy_raw_pct"])
-    if g is not None and metrics["growth_yoy_raw_pct"] is not None:
-        gap = abs(metrics["growth_yoy_raw_pct"] - g)
-        check("normalization_agrees", raw_dir == direction or gap < NORMALIZATION_GAP_PCT,
-              f"raw views {metrics['growth_yoy_raw_pct']:+.1f}% vs share of wiki traffic {g:+.1f}% "
-              f"(whole wiki {metrics['wiki_traffic_yoy_pct']:+.1f}%)" if metrics["wiki_traffic_yoy_pct"] is not None
-              else "raw and normalized growth compared")
     check("no_bot_signal", not bot_spikes,
           "no desktop-only spikes" if not bot_spikes
           else f"desktop-only spike(s) on {', '.join(bot_spikes)} look automated")
@@ -216,6 +210,10 @@ def analyze_series(topic: str, lang: str, articles: list, bundle: dict[str, dict
         flags.append("possible_bot_traffic")
     if spikes:
         flags.append("has_spikes")
+    # Informational: raw views and share diverge because the whole wiki moved. Normalisation exists
+    # exactly for this, so it does not lower confidence, but the agent should mention it.
+    if metrics["wiki_traffic_yoy_pct"] is not None and abs(metrics["wiki_traffic_yoy_pct"]) >= WIKI_SHIFT_PCT:
+        flags.append("wiki_traffic_shift")
     fails = [c["name"] for c in checks if not c["ok"]]
     if g is None or median_daily < VOLUME_MIN:
         confidence = "Insufficient"

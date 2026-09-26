@@ -37,56 +37,41 @@ path (e.g. `/path/to/wiki-interest-research/scripts/wpv`). Every command prints 
 ```bash
 scripts/wpv run --topic "intermittent fasting" --langs pl,cs --months 24
 ```
-If `status` is `error`, follow its `hint` (exit code 4 = network: retry once). Then read the JSON:
-1. **`reporting_rules`**: rules for this specific result. Follow all of them.
-2. **`draft`**: the interpretation, already written correctly by the code:
-   - `topics`: which concept was analysed (and alternatives if the name is ambiguous);
-   - `per_series[].lines`: per language: hedged verdict, share vs raw growth, audience size, confidence
-     reasons in plain words, recent months, spikes;
-   - `missing`, `ranking` (with weights and sensitivity), `limits`;
-   - `narrative_draft`: ready-made PDF text (English) with verified numbers and claims.
-3. Raw data if you need it: `results[]` (`metrics`, `confidence`, `allowed_claims`, `failed_checks`),
-   `missing[]` (with `suggestions`), `ranking[]`, `notes[]`, `files` (absolute paths to charts, CSV).
+If `status` is `error`, follow its `hint` (exit code 4 = network: retry once). The JSON contains:
+- **`reporting_rules`**: rules for this result. Follow all of them.
+- **`draft`**: the interpretation, already written correctly by code. `draft.answer_markdown` is a
+  complete answer; `draft.narrative_draft` is the complete PDF text. Other `draft` fields are their parts.
+- Raw data (`results`, `missing`, `ranking`, `notes`, `files`) if you need to look something up.
 
-### 3. Handle gaps before concluding
-- **Missing article** (`missing[]`): do not guess. Look at `suggestions`. Only if one is a genuine
-  equivalent (same concept, not just related), add it:
-  `scripts/wpv run --study <study> --article "pl:<Title>"` and tell the user it is a proxy.
-  Otherwise report "no dedicated article". That is a finding too (low coverage).
-- **Ambiguous topic**: if the request hints at a meaning, re-run with that `--topic Q<id>`. Otherwise
-  answer for the analysed meaning, name it in your first sentence ("Mercury, the planet") and offer
-  to run the alternatives.
-- **Mostly tiny articles** (Insufficient, or median < 10 views/day): do not recommend from them.
-  Broaden the topic (step 1 basket) and re-run once.
-- User's own criteria ("audience size matters most"): re-run with `--weights`, e.g.
-  `--weights volume=0.6,growth=0.2,share=0.1,confidence=0.1`, and state the weights in the answer.
+### 3. Handle gaps before answering (re-run once if needed)
+- **Ambiguous topic** (`topics[].ambiguous`): if the request hints at a meaning, re-run with that
+  `--topic Q<id>`. Otherwise keep the result: the draft already names the analysed meaning first.
+- **Missing article**: never estimate it. Only if a `suggestions` title is the same concept (not just
+  related), re-run with `--article "pl:<Title>"` and call it a proxy.
+- **All results Insufficient**: broaden the topic with a basket (step 1) and re-run once.
+- **User's own criteria** ("audience size matters most"): re-run with `--weights`, e.g.
+  `--weights volume=0.6,growth=0.2,share=0.1,confidence=0.1`. The draft then states the weights.
 
-### 4. Answer in chat (always, in the user's language)
-Build the answer from `draft`, translated naturally; keep every number and hedge exactly. Include:
-1. Direct answer first, 1-2 sentences (analysed concept if ambiguous).
-2. One line (or table row) per language from `draft.per_series` (verdict, share change, raw change,
-   views/month, confidence), plus `draft.missing`.
-3. Why the confidence is what it is: the plain reasons from `draft` (no p-values).
-4. Spikes / recent months from `draft` if present; ranking and weights from `draft.ranking` if you rank.
-5. Both limits from `draft.limits`.
-6. **Your recommendation for the product decision**: go / don't go / validate first, and what evidence
-   would change it. This is the only part you write yourself, and it may not add numbers.
-7. Absolute paths to the PDF and charts, and 1-2 follow-ups you can run (more languages, longer window,
-   other weights, alternative meaning).
-If the user asked for a short answer, give items 1, 2 (one line), 3 (one clause), 5, 6 briefly and offer
-the PDF instead of making it.
+### 4. Answer in chat = translate `draft.answer_markdown`
+- Translate it into the user's language. Keep every number, date, hedge and caveat exactly as written.
+- Do **not** add analysis, reasons, ratios, generalisations or causes that are not in the draft, and do
+  not drop lines (spikes, reasons, limits). You may shorten long lists of languages into a table.
+- Adapt only the **Recommendation** line to the user's product (same stance, no new facts).
+- Replace `PDF_PATH` with the path printed by the report command (step 5).
+- If the user asked for a short answer: translate only the first bold sentence, each language's
+  first two lines, the limits and the recommendation, and offer the PDF instead of making it.
+- Ukrainian terms: share of views = частка переглядів; raw views = абсолютні перегляди;
+  confidence = рівень довіри; Ukrainian-language Wikipedia = україномовна Вікіпедія;
+  spike = сплеск; survey = опитування. Write natural Ukrainian, no Russian words.
 
-### 5. Build the shareable PDF (when asked for a report / something to share, or for a decision)
-1. Copy `draft.narrative_draft` into `narrative.json` and translate `title`, `headline`, `findings[].text`
-   and `next_steps` into the user's language. Keep numbers, `about` and `claim` unchanged.
-2. Fill `recommendation` (the same stance as in chat, max 420 characters).
-3. Run, with `--lang` = the language the user wrote in:
+### 5. Build the PDF (always, unless the user asked only for a short answer)
+1. Save `draft.narrative_draft` as `narrative.json`, translating `title`, `headline`, `findings[].text`,
+   `recommendation` and `next_steps` into the user's language (keep numbers, `about`, `claim`).
+2. Run with `--lang` = the language the user wrote in:
 ```bash
 scripts/wpv report --study <study> --narrative narrative.json --lang <uk|en|pl|cs|de|es|fr>
 ```
-If `status` is `rejected`, fix exactly the listed fields (hints show the real values) and run it again.
-Claims (`claim` field) must be in that series' `allowed_claims`; `no_article`, `insufficient_data`,
-`context` and `comparison` are also accepted.
+3. If `status` is `rejected`, fix exactly the listed fields (hints show the real values) and re-run.
 
 ## Wording by claim (in any language)
 

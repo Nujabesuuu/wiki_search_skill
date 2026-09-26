@@ -1,0 +1,198 @@
+{
+ "iteration": 1,
+ "model": "claude-haiku-4.5",
+ "grader": "claude-opus (strict rubric)",
+ "runs": {
+  "ambiguous-mercury": {
+   "score": 70,
+   "breakdown": {
+    "A": 11,
+    "B": 17,
+    "C": 12,
+    "D": 9,
+    "E": 11,
+    "F": 6,
+    "G": 4
+   },
+   "deductions": [
+    "No automatic deduction applied for 'ambiguous topic silently treated as one meaning' (-15): the chat answer does say the planet was measured and names the element, Roman god and other homonyms. It is only a borderline pass. That line is buried in 'Important Context', the headline answer is about 'Mercury' with no qualifier, and the PDF is effectively silent about which meaning was used. This is penalised under C, D and E instead.",
+    "The '26' flagged in checks.json is the day in 'September 26, 2026' (report date). It is not an invented number.",
+    "No invented or miscomputed numbers. 12,339 / 8,615 views, 17.5 / 14.5 per million, -12.3% / -8.8% YoY (share), p=0.043 / 0.15, +1.3% recent 3m (fr), 24 Mar 2025 spike at 4x (peak_ratio 4.0) all match summary.json."
+   ],
+   "problems": [
+    "Ambiguity (the key trap of this scenario) is only half handled. The agent accepted the default Q308 (planet) without asking or re-running. The first-sentence answer says 'interest in Mercury is not growing' without qualification. The planet is mentioned only as the 2nd bullet under 'Important Context', and the alternatives are listed without offering to analyse them (e.g. the chemical element Q925).",
+    "The PDF (the shareable deliverable) is titled 'Wikipedia interest report: Mercury'. Its headline, findings and recommendation all say just 'Mercury' and never say 'planet'. The only disambiguation is a generic footer line in small print ('At least one topic name is ambiguous; check which Wikidata item was used'). A reader of the PDF would take it as interest in Mercury in general.",
+    "The recommendation ('Mercury would not be the priority') is made about 'Mercury' as a whole, while only the planet article was measured. That overreaches for a user who may have meant the element or something else.",
+    "The spike description is incomplete and slightly inaccurate. German has two spikes (2025-01-02 at 3.6x and 2025-03-24 at 4.0x), but the answer says robustness holds 'after removing the March 2025 spike' and never mentions the January spike. The -10.9% no-spike figure removes both.",
+    "No follow-ups are offered in chat. SKILL.md requires 1-2, and the obvious one here is 'want me to run mercury the element / Roman god instead?'. The next_steps exist only in the PDF.",
+    "Paths are relative. Only the PDF path is given; the chart paths are not.",
+    "p-values are shown to the reader (p=0.043, p=0.15) without a plain-language explanation. The answer has a lot of heading scaffolding for a yes/no question.",
+    "The chat table column 'YoY Growth' does not say it is share of wiki traffic, not raw views. Raw views fell more (-20.1% / -19.1%), so a reader checking raw data could be confused."
+   ]
+  },
+  "astronomy-followup": {
+   "score": 49,
+   "breakdown": {
+    "A": 12,
+    "B": 13,
+    "C": 8,
+    "D": 10,
+    "E": 11,
+    "F": 6,
+    "G": 4
+   },
+   "deductions": [
+    "-15 claim stronger than data allows: turn 2 says 'This is not random fluctuation; astronomy article interest is genuinely declining' and 'suggests this is not noise but a real trend' / 'declining consistently'. claim_strength is 'moderate' for all three series (allowed_claims = decline/possible_decline, no strong_decline) and two of three are Medium confidence; SKILL.md maps 'decline' to 'declining (moderate evidence)', never 'clearly'. uk and cs also show recent 3-month upticks (+7.7%, +16.1%), which cuts against 'consistently'."
+   ],
+   "problems": [
+    "Overclaiming in turn 2: 'genuinely declining', 'not random fluctuation', 'not noise but a real trend' and 'regional phenomenon'. None of it is hedged as moderate evidence.",
+    "Raw and normalised are confused. Turn 1 says 'Astronomy article views ... dropped 45.5%', but raw views fell 59.6%; 45.5% is the share of wiki traffic. The turn-2 narrative and PDF say 'astronomy article views dropped 9.6%' for pl, but raw fell 16.1%. The chat never says the headline is normalised, and never mentions that the whole wikis shrank (uk -24.6%, cs -12.6%, pl -8.8%).",
+    "A p-value is attached to the wrong metric: 'Even the modest -9.6% decline is statistically significant (p=4.7e-05)'. That p-value comes from the seasonal Mann-Kendall trend test over the whole window, not from the YoY comparison.",
+    "Language is treated as country in the chat: 'Poland has the most reliable signal', 'Ukraine shows steepest decline', 'Compare regions'. Neither chat answer states the limits (language != country, attention != payment); they appear only in the PDF boilerplate.",
+    "'Interest in astronomy' rests on a single article per language (Астрономія / Astronomia / Astronomie). This is never flagged, yet the answer generalises to 'astronomy interest in these language communities'.",
+    "The confidence explanation for Czech gives only 'small audiences'. The failed no_bot_signal check (desktop-only spike 2026-07-13) appears only as a side note and is not named as a reason for Medium confidence.",
+    "The recommendation is generic ('If astronomy content ... matters: investigate cause, audit content'). It does not help the cofounder decide anything, and the header 'Recommendation for Cofounder' is awkward.",
+    "Turn 1 built an unrequested PDF with --lang uk for an English-speaking user. The result is a mixed-language report (Ukrainian labels, English narrative), and it was offered in the chat.",
+    "In the turn-2 PDF, the value label '-45.5% · Medium' overlaps the 'Ukrainian (uk)' axis label on the YoY bar chart.",
+    "The turn-2 chat gives no chart paths, only a relative PDF path, and makes no explicit 1-2 follow-up offers. It also uses p-value notation like 4.7e-05 without explaining it to a non-technical cofounder.",
+    "Turn 1 wording '10 per million wiki pages' is a mislabel; the metric is views per million pageviews of the wiki."
+   ]
+  },
+  "astronomy-uk-trust": {
+   "score": 64,
+   "breakdown": {
+    "A": 13,
+    "B": 11,
+    "C": 11,
+    "D": 9,
+    "E": 11,
+    "F": 5,
+    "G": 4
+   },
+   "deductions": [
+    "No automatic deductions applied. Borderline cases were scored inside B and C instead: (1) the PDF says 'кількість переглядів впала на 45,5%', but raw views fell -59.6% and -45.5% is the change in share of wiki traffic; (2) 'падіння реальне' / 'падіння дійсне' is somewhat stronger than the Medium / moderate 'decline' wording."
+   ],
+   "problems": [
+    "Raw and normalised figures are confused, and the 'wiki-wide traffic decline' trap was failed. The chat says Ukrainian Wikipedia's overall traffic fell 24.6% 'so part of the decline may come from the general trend'. That is wrong: growth_yoy_pct is already a share of wiki traffic, so the wiki-wide decline is removed. It is the raw figure (-59.6%, never mentioned) that includes it.",
+    "PDF finding 1 says the number of views fell 45.5%. Views actually fell 59.6%; 45.5% is the drop in share.",
+    "The chat calls growth_yoy_no_spikes_pct (-45.8%) 'тренд' ('тренд показує падіння на 45,8%'), which mixes it up with trend_per_year_pct (-50%).",
+    "It misses important context in the data. growth_recent_3m_pct is +7.7%, and the monthly series shows the drop happened almost entirely between 2024-09 and 2025-06, with the last ~12 months flat at about 6-10 views per million. September peaks in both years (school-year start, very relevant for an education app) are not discussed. 'Він падає' in the present tense overstates what is happening now.",
+    "Only 1 of 3 spikes is mentioned, and the September spikes are not linked to seasonality.",
+    "The chat does not state 'language != country'. A follow-up says 'UK часто показує іші тренди, ніж глобальний', which appears to confuse the uk language code with the United Kingdom.",
+    "The recommendation is vague ('потребує переосмислення'). There is no clear guidance for the course decision, such as whether to build or not, what the small absolute audience means, or what threshold would change the answer.",
+    "The Ukrainian has errors: Russian words ('Это', 'спрос'), typos ('іші', 'модеовану', 'непід впливом'), the wrong term 'Довіреність' (it means power of attorney) used for confidence, and unexplained jargon ('салієнтність').",
+    "PDF defects: the title shows the English topic label ('astronomy'), the growth bar chart label overlaps its value text ('українська (uk)' collides with '-45.5% · Середня'), and the headline has a typo.",
+    "No transcript is available, so tool-call efficiency and command correctness could not be fully verified. The single study folder suggests one clean run."
+   ]
+  },
+  "casual-stoicism": {
+   "score": 52,
+   "breakdown": {
+    "A": 13,
+    "B": 13,
+    "C": 8,
+    "D": 10,
+    "E": 12,
+    "F": 7,
+    "G": 4
+   },
+   "deductions": [
+    "-15 claim stronger than the data allows: Polish Wikipedia readership is presented as 'Poland' throughout ('No, stoicism is not getting more popular in Poland', 'Poland's decline'), and pageviews are called 'the most direct measure of public attention', 'unbiased' and 'proof' that the user's feed is misleading them. strong_decline allows 'clearly declining' among Polish Wikipedia readers; it does not support claims about the country or about the feed."
+   ],
+   "problems": [
+    "The chat never says that a language edition is not a country, which was the central trap. Polish Wikipedia is treated as Poland everywhere. Only the PDF's boilerplate footer says it.",
+    "Raw and normalised figures are mixed up. The chat and the PDF say 'views fell 44%' / 'pageviews dropped 44%', but -44.1% is the change in share of wiki traffic; raw views fell 50.0% (growth_yoy_raw_pct). The normalisation is never explained.",
+    "'Tracks millions of real readers' cannot be traced to summary.json. Polish averages 3,336 views/month (about 80k views over 24 months), and views are not readers.",
+    "The claim that the feed 'is an algorithmic echo chamber' is speculation stated as fact. The data says nothing about the user's feed. The recommendation to share this 'as proof' overclaims and gives the cofounder little to act on.",
+    "Confidence 'High' is given without reasons in plain words. There is just 'statistically significant (p < 0.003)', an unexplained bit of jargon loosely rounded from p=0.0015.",
+    "Misses the timing, which matters for 'is it getting more popular now'. The Polish series fell from about 10k/month (late 2024) to about 2.5k by mid-2025 and has been roughly flat to slightly down since (recent 3m -8.5%). Instead the agent suggests checking 'when the peak was' as a follow-up, even though the data is already in summary.json.",
+    "'All major language editions' overgeneralises from 4 wikis. 'English-speaking and German Wikipedia editors' is wrong: these are readers, not editors.",
+    "Chart paths are not given in chat. The tone is heavy for a casual question: many headers, emoji arrows, three follow-ups."
+   ]
+  },
+  "custom-criteria-yoga": {
+   "score": 38,
+   "breakdown": {
+    "A": 12,
+    "B": 13,
+    "C": 12,
+    "D": 12,
+    "E": 13,
+    "F": 7,
+    "G": 4
+   },
+   "deductions": [
+    "-20 wrong number presented as data: '45% larger than Spanish' (chat headline, recommendation, narrative and PDF key takeaway). 8,224 / 5,710 = 1.440, i.e. 44% larger, not 45%. The agent hand-computed this ratio, which SKILL.md forbids ('Never compute numbers yourself'), and got it wrong. The narrative verifier let it through.",
+    "-15 claim stronger than the data allows: 'Yoga interest is falling across all four language editions' (chat) and 'Analyze why interest is falling across all markets' (PDF next steps). Italian allowed_claims = ['stable'] (normalised YoY -3.9%, Medium). This also contradicts the answer's own 'Italian ... roughly stable'."
+   ],
+   "problems": [
+    "The weights are never stated in the chat or the PDF. The user never learns that 'audience size matters most' became volume 70% / growth 15% / share 10% / confidence 5%. The expected output requires them to be stated. A 'Rank' column appears with no explanation.",
+    "Wrong derived number '45%' (really 44%) is repeated three times, including the PDF headline.",
+    "Overclaim: calls Italian interest 'falling' when it is only allowed 'roughly stable'. The answer contradicts itself on Italian.",
+    "The 'Data Source' line lists en.wikipedia.org, but English was never part of the study (langs de, fr, es, it).",
+    "'Most stable momentum among top markets' for German is misleading: French normalised YoY (-8.0%) declines less than German (-9.1%). German does have a better 3-month figure (+1.9%), but the answer does not cite it.",
+    "Italian Medium confidence is only half explained. The failed normalization_agrees check (raw -15.5% vs share -3.9%, whole wiki -13.0%) is not described in plain words. High confidence for the other three gets no reasons.",
+    "Raw vs normalised is blurred: the speculative causes offered ('younger users preferring other platforms over Wikipedia', 'pandemic-era enthusiasm cooling' for a 2024-2026 window) are wiki-wide effects that normalised growth already removes. None of them is supported by the data.",
+    "The single-day spikes (de 2025-05-10, fr 2025-03-30) are not mentioned. Neither is the obvious Nov-2025 surge on all four wikis visible in the trend chart (it falls inside the last-12-month window). SKILL.md says to mention spikes.",
+    "No trade-off framing against growth: it never says that under a growth-heavy weighting Italian or French would rank higher. It also does not offer to re-run with other weights as a follow-up.",
+    "Long answer (~4.2k chars) with speculative 'phase' planning ('If decline continues ... may indicate temporary trend or structural shift' is incoherent). The four next steps are generic rather than 1-2 concrete skill follow-ups."
+   ]
+  },
+  "english-learning-audiences": {
+   "score": 50,
+   "breakdown": {
+    "A": 12,
+    "B": 15,
+    "C": 9,
+    "D": 9,
+    "E": 10,
+    "F": 6,
+    "G": 4
+   },
+   "deductions": [
+    "-15: claim stronger than the data allows. All three series have allowed_claims=[insufficient_data] (the 'never say any trend' row). The chat still labels de and es 'Trend Signal: Declining (-26% / -39% YoY)' and calls Turkish salience 'a strong signal' and an 'Immediate Priority'. That rests on 75 views/month and a 2 views/day median."
+   ],
+   "problems": [
+    "Selective use of the headline metric. The chat gives YoY decline for German and Spanish but omits Turkish's -29.2% (share) and -26.3%/yr trend while ranking Turkish first. Turkish declined just as much.",
+    "Trend language for insufficient_data series ('Trend Signal: Declining ... but data too sparse to confirm') breaks the claim-wording table, even with the hedge.",
+    "Overclaim on Turkish: 'Turkish Wikipedia readers show the strongest relative interest ... a strong signal'. The confidence is Insufficient, and the salience comes from a different article, with 4 redirects, at 2 views/day. A salience gap between different articles at this volume is not a strong signal.",
+    "Ranking is not explained against the expected criteria. The tool returned ranking=null for every language ('not ranked: insufficient data'), but the agent never said so. It ranked on salience alone, with no stated weights, and ignored size (Spanish is largest) and growth (all declining).",
+    "The logic is inconsistent: German and Spanish are deprioritised for 'insufficient data', but Turkish, also Insufficient, is 'Immediate Priority'. 'Revisit with 36+ months' will not fix a 2-3 views/day volume problem.",
+    "Uneven coverage (2 of 5 audiences have no data) is reported but not handled further. The agent did not try a labelled proxy or basket (e.g. the Q130192+Q1860 basket SKILL.md suggests). It did not state that the comparison covers only 3 of 5 audiences, so recommending pl/uk research rests on no data at all.",
+    "The chat answer gives no paths to the PDF, charts or summary.json (SKILL.md 'Answer in chat' step 5).",
+    "There is no per-option comparison table in the chat (views/month, share growth, confidence), which SKILL.md step 2 requires.",
+    "No skill follow-ups are offered (longer window, more languages, other weights). There is only a generic week-by-week plan with invented interview counts.",
+    "Hand-derived ratio '3-7x higher' is not in the tool output. It is roughly correct (3.2x, 6.6x) but violates 'never compute numbers yourself'.",
+    "PDF recommendation mixes audiences and methods ('(2) Direct validation via ... Google Trends') instead of giving a clear 'research next' audience list. The growth chart has overlapping labels: 'Spanish (es)' collides with '-39.0%', and the x-axis label collides with the hatch legend.",
+    "Tool-call log not available to verify efficiency (only one cached run is visible)."
+   ]
+  },
+  "fasting-pl-cs": {
+   "score": 50,
+   "breakdown": {
+    "A": 13,
+    "B": 14,
+    "C": 9,
+    "D": 8,
+    "E": 11,
+    "F": 6,
+    "G": 4
+   },
+   "deductions": [
+    "-15 claim stronger than data allows: allowed_claims for cs are only decline/possible_decline (moderate, Medium confidence), yet the answer/PDF say 'виразним падінням' (pronounced decline) and 'падіння не випадкове' (the decline is not random). The PDF recommendation also asserts 'Польська мовна аудиторія цікавиться інтервальним голодуванням не менше, ніж чеська', a statement about pl interest with zero pl data because the pl article is missing"
+   ],
+   "problems": [
+    "The PDF headline and narrative say the -47.7% happened 'за два роки' (over two years). It is actually year over year (last 12 months vs the previous 12), so a founder reads the key number with the wrong period",
+    "Chat recommendation 1 is nonsensical: it notes the Polish gap, then suggests 'створення статті чеської мовою' (creating an article in Czech)",
+    "PDF recommendation makes an unsupported claim about Polish interest ('не менше, ніж чеська') even though pl has no article and no data",
+    "Overclaiming words for a 'decline' (moderate) claim: 'помітне', 'виразне' and 'не випадкове'. The skill table asks for 'declining (moderate evidence)'",
+    "Spikes are mentioned only as a curiosity. The answer never says that all three spikes fall in the previous-year window and inflate the decline, and never gives the spike-free growth (-34.2%) from summary.json",
+    "The chat answer does not state that attention != willingness to pay/purchase (it appears only in the auto-generated PDF method text)",
+    "No 1-2 follow-ups offered at the end of the chat answer, as SKILL.md requires. Recommendations target 'the Wikipedia community' rather than a product or content decision",
+    "Polish suggestion titles translated loosely ('Paleolityczny styl życia' -> 'Paleo diet'), and the next step suggests searching 'post, fasting' or 'dieta', which are vague",
+    "PDF quality: the title keeps the English topic label 'intermittent fasting', there are several Ukrainian grammar errors ('Чеська статтю', 'цікавитися', 'мог би', 'специфічна змінам'), and in the growth chart the '-47.7% · Середня' label overlaps the 'чеська (cs)' axis label",
+    "File paths are relative, and the chat does not say which of the two report-uk.pdf copies is the canonical study output"
+   ]
+  }
+ }
+}

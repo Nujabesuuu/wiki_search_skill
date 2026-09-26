@@ -70,12 +70,12 @@ def test_growth_driven_by_one_viral_day_is_not_trusted():
     assert r["allowed_claims"] == ["possible_growth"]
 
 
-def test_growth_explained_by_wiki_wide_traffic_is_flagged():
+def test_growth_explained_by_wiki_wide_traffic_is_neutralised_not_penalised():
     r = run(noisy(200, 0.20), tot=totals(0.20))
     assert r["metrics"]["growth_yoy_raw_pct"] > 15
     assert r["direction"] == "flat"
-    failed = {c["name"] for c in r["checks"] if not c["ok"]}
-    assert "normalization_agrees" in failed
+    assert "wiki_traffic_shift" in r["flags"]
+    assert r["confidence"] == "High", r["checks"]
 
 
 def test_decline_in_share_while_raw_views_flat():

@@ -107,9 +107,13 @@ def _story(summary: dict, narrative: dict, lang: str, charts: dict, colors_map: 
              Spacer(1, 5)]
 
     box = [[_p(L["takeaway"].upper(), S["small"])], [_p(narrative.get("headline", ""), S["head"])]]
-    if narrative.get("recommendation"):
-        box += [[Spacer(1, 2)], [Paragraph(f"<b>{escape(L['recommendation'])}:</b> "
-                                           f"{escape(narrative['recommendation'])}", S["body"])]]
+    rec = (narrative.get("recommendation") or "").strip()
+    label = L["recommendation"]
+    for prefix in (label, "Recommendation", "Рекомендація"):   # the agent sometimes repeats the label
+        if rec.lower().startswith(prefix.lower()):
+            rec = rec[len(prefix):].lstrip(" :—-")
+    if rec:
+        box += [[Spacer(1, 2)], [Paragraph(f"<b>{escape(label)}:</b> {escape(rec)}", S["body"])]]
     tb = Table(box, colWidths=[width])
     tb.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), TAKEAWAY_BG),
                             ("LEFTPADDING", (0, 0), (-1, -1), 8), ("RIGHTPADDING", (0, 0), (-1, -1), 8),
