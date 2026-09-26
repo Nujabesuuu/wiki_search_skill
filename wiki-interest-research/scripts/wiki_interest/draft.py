@@ -168,8 +168,8 @@ def ranking_sentences(summary: dict) -> list[str]:
         top = next(x for x in rank(summary["results"], w) if x.get("rank"))
         if top["lang"] != ranked[0]["lang"] or top["topic"] != ranked[0]["topic"]:
             alt.append(f"judged on {_WEIGHT_NAMES[key]} alone, {name(top)} would lead")
-    if alt:
-        out.append("Trade-off: " + "; ".join(alt) + ".")
+    if alt:   # same sentence as the ranking: evaluations showed a separate trade-off line gets dropped
+        out[0] = out[0][:-1] + "; trade-off: " + "; ".join(alt) + "."
     return out
 
 

@@ -14,8 +14,9 @@ tests trends, grades confidence, draws charts, verifies your text and builds the
 **Your job: pick the right topics and languages, run the commands, read the JSON, and explain it
 honestly.** Never compute numbers yourself and never invent them.
 
-`scripts/wpv` below is inside this skill's directory. If your shell is elsewhere, use its absolute
-path (e.g. `/path/to/wiki-interest-research/scripts/wpv`). Every command prints one JSON object.
+`scripts/wpv` below is inside this skill's directory: call it by its absolute path
+(e.g. `/path/to/wiki-interest-research/scripts/wpv`) from the user's working directory, where studies
+and files are created. Every command prints one JSON object.
 
 ## Workflow
 
@@ -80,7 +81,8 @@ If `status` is `rejected`, fix exactly the listed fields (hints show the real va
 scripts/wpv check --study <study> --answer answer.md
 ```
 It flags numbers that are not in the data, country names, generalisations, dropped lines and a missing
-PDF path. Fix every issue in `answer.md`, run it again until `status` is `ok`, then send `answer.md`.
+PDF path. Fix every issue in `answer.md`, run it again until `status` is `ok`, then send **exactly**
+`answer.md` (same text, same PDF path). If you change anything afterwards, run the check again.
 
 ## Wording by claim (in any language)
 

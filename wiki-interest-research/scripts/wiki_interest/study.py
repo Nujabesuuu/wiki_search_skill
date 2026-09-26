@@ -31,9 +31,21 @@ def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60] or "study"
 
 
+SKILL_DIR = Path(__file__).resolve().parents[2]
+
+
+def default_root() -> Path:
+    """Studies live in the user's working directory, never inside the skill itself
+    (agents sometimes cd into the skill directory before running commands)."""
+    cwd = Path.cwd().resolve()
+    if cwd == SKILL_DIR or SKILL_DIR in cwd.parents:
+        return Path.home() / DEFAULT_ROOT
+    return DEFAULT_ROOT
+
+
 def default_dir(cfg: StudyConfig) -> Path:
     topic = cfg.topics[0].split("=")[0] if cfg.topics else "study"
-    return DEFAULT_ROOT / slugify(f"{topic}-{'-'.join(cfg.langs)}")
+    return default_root() / slugify(f"{topic}-{'-'.join(cfg.langs)}")
 
 
 def load(path: Path) -> StudyConfig:
