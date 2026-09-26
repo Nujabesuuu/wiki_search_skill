@@ -66,8 +66,13 @@ def parse_langs(value: str | list[str]) -> list[str]:
     return out
 
 
-def lang_name(code: str) -> str:
-    return LANGUAGES.get(code, (code,))[0]
+def lang_name(code: str, in_lang: str = "en") -> str:
+    """Language name for labels: English in English reports, Ukrainian in Ukrainian ones,
+    otherwise the language's own name (readable for any audience)."""
+    names = LANGUAGES.get(code)
+    if not names:
+        return code
+    return {"en": names[0], "uk": names[2]}.get(in_lang, names[1])
 
 
 def project(code: str) -> str:

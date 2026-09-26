@@ -44,7 +44,12 @@ class Window:
     requested_months: int
     months: list[str]            # analysis months (>= 24)
     chart_months: list[str]      # what the user asked to see
-    notes: list[str] = field(default_factory=list)
+    note_codes: list[dict] = field(default_factory=list)   # translated by i18n.note_text
+
+    @property
+    def notes(self) -> list[str]:
+        from .i18n import note_text
+        return [note_text("en", n["code"], n["params"]) for n in self.note_codes]
 
     @property
     def start_day(self) -> date:
@@ -76,11 +81,10 @@ def make_window(months: int, end: str | None = None, today: date | None = None) 
     first_available = f"{DATA_START.year:04d}-{DATA_START.month:02d}"
     if start < first_available:
         start = first_available
-        notes.append("Pageview data starts in July 2015; the window was shortened accordingly.")
+        notes.append({"code": "data_start", "params": {}})
     all_months = stats.month_range(start, end)
     if months < MIN_ANALYSIS_MONTHS:
-        notes.append(f"Growth statistics use the last {len(all_months)} months (the minimum for year-over-year "
-                     f"comparison); charts show the requested {months} months.")
+        notes.append({"code": "window_min", "params": {"analysis": len(all_months), "months": months}})
     return Window(months, all_months, all_months[-months:], notes)
 
 

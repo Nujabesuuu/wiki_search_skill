@@ -9,8 +9,8 @@ from __future__ import annotations
 _EN = {
     "trend_title": "Interest: views per million wiki pageviews",
     "trend_axis": "views per million",
-    "growth_title": "Change in interest: last 12 mo vs previous 12",
-    "growth_axis": "% change of share of wiki traffic",
+    "growth_title": "Change in interest, year over year",
+    "growth_axis": "% (share of wiki traffic)",
     "low_conf_legend": "hatched = low / insufficient confidence",
     "report_title": "Wikipedia interest report",
     "takeaway": "Key takeaway",
@@ -45,8 +45,8 @@ _EN = {
 _UK = {
     "trend_title": "Інтерес: перегляди на мільйон переглядів вікі",
     "trend_axis": "переглядів на мільйон",
-    "growth_title": "Зміна інтересу: останні 12 місяців проти попередніх 12",
-    "growth_axis": "% зміни частки трафіку вікі",
+    "growth_title": "Зміна інтересу за рік",
+    "growth_axis": "% (частка трафіку вікі)",
     "low_conf_legend": "штрихування = низька / недостатня довіра",
     "report_title": "Звіт про інтерес у Вікіпедії",
     "takeaway": "Головний висновок",
@@ -81,8 +81,8 @@ _UK = {
 _PL = {
     "trend_title": "Zainteresowanie: wyświetlenia na milion odsłon wiki",
     "trend_axis": "wyświetlenia na milion",
-    "growth_title": "Zmiana zainteresowania: ostatnie 12 miesięcy vs poprzednie 12",
-    "growth_axis": "% zmiany udziału w ruchu wiki",
+    "growth_title": "Zmiana zainteresowania r/r",
+    "growth_axis": "% (udział w ruchu wiki)",
     "low_conf_legend": "kreskowanie = niska / niewystarczająca pewność",
     "report_title": "Raport zainteresowania w Wikipedii",
     "takeaway": "Główny wniosek",
@@ -117,8 +117,8 @@ _PL = {
 _CS = {
     "trend_title": "Zájem: zobrazení na milion zobrazení wiki",
     "trend_axis": "zobrazení na milion",
-    "growth_title": "Změna zájmu: posledních 12 měsíců vs předchozích 12",
-    "growth_axis": "% změna podílu na provozu wiki",
+    "growth_title": "Meziroční změna zájmu",
+    "growth_axis": "% (podíl na provozu wiki)",
     "low_conf_legend": "šrafování = nízká / nedostatečná důvěra",
     "report_title": "Zpráva o zájmu na Wikipedii",
     "takeaway": "Hlavní závěr",
@@ -152,8 +152,8 @@ _CS = {
 _DE = {
     "trend_title": "Interesse: Aufrufe pro Million Wiki-Aufrufe",
     "trend_axis": "Aufrufe pro Million",
-    "growth_title": "Veränderung des Interesses: letzte 12 Monate vs. vorherige 12",
-    "growth_axis": "% Veränderung des Anteils am Wiki-Traffic",
+    "growth_title": "Veränderung des Interesses zum Vorjahr",
+    "growth_axis": "% (Anteil am Wiki-Traffic)",
     "low_conf_legend": "schraffiert = geringe / unzureichende Belastbarkeit",
     "report_title": "Wikipedia-Interessenbericht",
     "takeaway": "Kernaussage",
@@ -189,8 +189,8 @@ _DE = {
 _ES = {
     "trend_title": "Interés: vistas por millón de vistas de la wiki",
     "trend_axis": "vistas por millón",
-    "growth_title": "Cambio de interés: últimos 12 meses vs 12 anteriores",
-    "growth_axis": "% de cambio de la cuota del tráfico wiki",
+    "growth_title": "Cambio interanual del interés",
+    "growth_axis": "% (cuota del tráfico wiki)",
     "low_conf_legend": "rayado = confianza baja / insuficiente",
     "report_title": "Informe de interés en Wikipedia",
     "takeaway": "Conclusión principal",
@@ -226,8 +226,8 @@ _ES = {
 _FR = {
     "trend_title": "Intérêt : vues par million de vues du wiki",
     "trend_axis": "vues par million",
-    "growth_title": "Évolution de l'intérêt : 12 derniers mois vs 12 précédents",
-    "growth_axis": "% d'évolution de la part du trafic wiki",
+    "growth_title": "Évolution de l'intérêt sur un an",
+    "growth_axis": "% (part du trafic wiki)",
     "low_conf_legend": "hachuré = confiance faible / insuffisante",
     "report_title": "Rapport d'intérêt Wikipédia",
     "takeaway": "À retenir",
@@ -259,6 +259,64 @@ _FR = {
         "couverture et les titres diffèrent selon les wikis ; les articles manquants sont signalés, non estimés. "
         "Utilisez ces résultats pour choisir quoi valider ensuite, pas comme estimation finale du marché."),
 }
+
+NOTES = {
+    "en": {
+        "window_min": "Growth statistics use the last {analysis} months (minimum for year-over-year); charts show {months}.",
+        "data_start": "Pageview data starts in July 2015; the window was shortened.",
+        "basket_uneven": "Topic baskets are covered unevenly ({detail}), so those languages are compared on different article sets.",
+        "ambiguous": "At least one topic name is ambiguous; check which Wikidata item was used.",
+        "no_redirects": "Views of redirects were excluded.",
+    },
+    "uk": {
+        "window_min": "Статистика зростання використовує останні {analysis} міс. (мінімум для порівняння рік до року); графіки показують {months}.",
+        "data_start": "Дані переглядів доступні з липня 2015; період скорочено.",
+        "basket_uneven": "Набір статей теми покритий нерівномірно ({detail}), тож ці мови порівнюються за різними наборами статей.",
+        "ambiguous": "Щонайменше одна назва теми неоднозначна; перевірте, який елемент Wikidata використано.",
+        "no_redirects": "Перегляди перенаправлень виключено.",
+    },
+    "pl": {
+        "window_min": "Statystyki wzrostu obejmują ostatnie {analysis} mies. (minimum dla porównania r/r); wykresy pokazują {months}.",
+        "data_start": "Dane o wyświetleniach są dostępne od lipca 2015; okres skrócono.",
+        "basket_uneven": "Zestaw artykułów tematu jest pokryty nierówno ({detail}), więc te języki porównywane są na różnych zestawach artykułów.",
+        "ambiguous": "Co najmniej jedna nazwa tematu jest niejednoznaczna; sprawdź użyty element Wikidata.",
+        "no_redirects": "Wyświetlenia przekierowań wyłączono.",
+    },
+    "cs": {
+        "window_min": "Statistiky růstu používají posledních {analysis} měs. (minimum pro meziroční srovnání); grafy ukazují {months}.",
+        "data_start": "Data o zobrazeních jsou k dispozici od července 2015; období bylo zkráceno.",
+        "basket_uneven": "Sada článků tématu je pokryta nerovnoměrně ({detail}), takže tyto jazyky se srovnávají na různých sadách článků.",
+        "ambiguous": "Alespoň jeden název tématu je nejednoznačný; zkontrolujte použitou položku Wikidat.",
+        "no_redirects": "Zobrazení přesměrování byla vyloučena.",
+    },
+    "de": {
+        "window_min": "Wachstumsstatistiken nutzen die letzten {analysis} Monate (Minimum für Vorjahresvergleich); Diagramme zeigen {months}.",
+        "data_start": "Seitenaufrufdaten gibt es ab Juli 2015; der Zeitraum wurde gekürzt.",
+        "basket_uneven": "Die Artikelgruppe des Themas ist ungleich abgedeckt ({detail}); diese Sprachen werden daher mit unterschiedlichen Artikeln verglichen.",
+        "ambiguous": "Mindestens ein Themenname ist mehrdeutig; prüfen Sie das verwendete Wikidata-Objekt.",
+        "no_redirects": "Aufrufe von Weiterleitungen wurden ausgeschlossen.",
+    },
+    "es": {
+        "window_min": "Las estadísticas de crecimiento usan los últimos {analysis} meses (mínimo para comparación interanual); los gráficos muestran {months}.",
+        "data_start": "Los datos de vistas empiezan en julio de 2015; el periodo se acortó.",
+        "basket_uneven": "El conjunto de artículos del tema tiene cobertura desigual ({detail}), así que esos idiomas se comparan con artículos distintos.",
+        "ambiguous": "Al menos un nombre de tema es ambiguo; compruebe el elemento de Wikidata usado.",
+        "no_redirects": "Se excluyeron las vistas de redirecciones.",
+    },
+    "fr": {
+        "window_min": "Les statistiques de croissance utilisent les {analysis} derniers mois (minimum pour une comparaison sur un an) ; les graphiques montrent {months}.",
+        "data_start": "Les données de vues commencent en juillet 2015 ; la période a été raccourcie.",
+        "basket_uneven": "Le groupe d'articles du sujet est couvert de façon inégale ({detail}) ; ces langues sont donc comparées sur des articles différents.",
+        "ambiguous": "Au moins un nom de sujet est ambigu ; vérifiez l'élément Wikidata utilisé.",
+        "no_redirects": "Les vues des redirections ont été exclues.",
+    },
+}
+
+
+def note_text(lang: str, code: str, params: dict) -> str:
+    template = NOTES.get(lang, NOTES["en"]).get(code) or NOTES["en"].get(code, code)
+    return template.format(**params)
+
 
 LABELS = {"en": _EN, "uk": _UK, "pl": _PL, "cs": _CS, "de": _DE, "es": _ES, "fr": _FR}
 SUPPORTED = tuple(LABELS)

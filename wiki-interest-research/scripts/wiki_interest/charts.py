@@ -27,10 +27,10 @@ plt.rcParams.update({
 })
 
 
-def series_label(r: dict, multi_topic: bool) -> str:
+def series_label(r: dict, multi_topic: bool, lang: str = "en") -> str:
     if multi_topic:
         return f"{r['topic']} · {r['lang']}"
-    return f"{lang_name(r['lang'])} ({r['lang']})"
+    return f"{lang_name(r['lang'], lang)} ({r['lang']})"
 
 
 def _short_month(m: str) -> str:
@@ -48,12 +48,26 @@ def trend_chart(results: list[dict], chart_months: list[str], colors: dict[str, 
         ys = [r["_monthly_per_million"][i] for i in idx]
         xs = list(range(len(idx)))
         color = colors[f"{r['topic']}|{r['lang']}"]
-        ax.plot(xs, ys, color=color, linewidth=2, label=series_label(r, multi_topic), solid_capstyle="round")
+        ax.plot(xs, ys, color=color, linewidth=2, label=series_label(r, multi_topic, lang), solid_capstyle="round")
         values_all += [y for y in ys if y]
         if ys and ys[-1] is not None:
-            ends.append((ys[-1], series_label(r, multi_topic)))
+            ends.append((ys[-1], series_label(r, multi_topic, lang)))
     if values_all and max(values_all) / max(min(values_all), 1e-9) > 30:
         ax.set_yscale("log")
+    if 2 <= len(ends) <= 4:   # direct end labels, nudged apart so they never collide
+        ax.set_xlim(-0.5, len(chart_months) - 0.5 + len(chart_months) * 0.12)
+        fig.canvas.draw()
+        to_px = ax.transData.transform
+        placed = []
+        for y, name in sorted(ends, key=lambda e: e[0]):
+            py = to_px((0, y))[1]
+            if placed and py - placed[-1] < 11:
+                py = placed[-1] + 11
+            placed.append(py)
+            ax.annotate(name.split(" (")[-1].rstrip(")") if not multi_topic else name.split(" · ")[-1],
+                        xy=(len(chart_months) - 1, y), xycoords="data",
+                        xytext=(len(chart_months) - 0.6, ax.transData.inverted().transform((0, py))[1]),
+                        textcoords="data", va="center", fontsize=7.5, color=INK2)
     ticks = list(range(0, len(chart_months), max(1, len(chart_months) // 6)))
     ax.set_xticks(ticks, [_short_month(chart_months[i]) for i in ticks])
     ax.set_ylabel(L["trend_axis"])
@@ -61,7 +75,7 @@ def trend_chart(results: list[dict], chart_months: list[str], colors: dict[str, 
     ax.set_axisbelow(True)
     ax.set_title(L["trend_title"], fontsize=8.5, wrap=True)
     if len(results) >= 2:
-        ax.legend(loc="upper left", bbox_to_anchor=(0, -0.12), ncol=min(4, len(results)), handlelength=1.2)
+        ax.legend(loc="upper left", bbox_to_anchor=(0, -0.12), ncol=min(3, len(results)), handlelength=1.2)
     fig.tight_layout()
     fig.savefig(path, facecolor="white")
     plt.close(fig)
@@ -84,7 +98,7 @@ def growth_chart(results: list[dict], colors: dict[str, str], path: Path, lang: 
                     textcoords="offset points", va="center", ha="left" if g >= 0 else "right",
                     fontsize=7.5, color=INK)
     ax.axvline(0, color=INK2, linewidth=0.8)
-    ax.set_yticks(range(len(rows)), [series_label(r, multi_topic) for r in rows])
+    ax.set_yticks(range(len(rows)), [series_label(r, multi_topic, lang) for r in rows])
     lo = min([0] + [r["metrics"]["growth_yoy_pct"] for r in rows])
     hi = max([0] + [r["metrics"]["growth_yoy_pct"] for r in rows])
     pad = max(12.0, (hi - lo) * 0.45)
@@ -111,7 +125,7 @@ def views_chart(results: list[dict], chart_months: list[str], colors: dict[str, 
     for r in results:
         idx = [r["_months"].index(m) for m in chart_months if m in r["_months"]]
         ax.plot(range(len(idx)), [r["_monthly_views"][i] for i in idx], linewidth=2,
-                color=colors[f"{r['topic']}|{r['lang']}"], label=series_label(r, multi_topic))
+                color=colors[f"{r['topic']}|{r['lang']}"], label=series_label(r, multi_topic, lang))
     ticks = list(range(0, len(chart_months), max(1, len(chart_months) // 6)))
     ax.set_xticks(ticks, [_short_month(chart_months[i]) for i in ticks])
     ax.set_ylabel("views / month")
@@ -119,7 +133,7 @@ def views_chart(results: list[dict], chart_months: list[str], colors: dict[str, 
     ax.grid(axis="y", color=GRID, linewidth=0.6)
     ax.set_title("Monthly pageviews incl. redirects (audience size)", fontsize=8.5)
     if len(results) >= 2:
-        ax.legend(loc="upper left", bbox_to_anchor=(0, -0.12), ncol=min(4, len(results)))
+        ax.legend(loc="upper left", bbox_to_anchor=(0, -0.12), ncol=min(3, len(results)))
     fig.tight_layout()
     fig.savefig(path, facecolor="white")
     plt.close(fig)

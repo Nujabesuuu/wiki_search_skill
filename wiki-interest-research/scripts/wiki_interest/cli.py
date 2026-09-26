@@ -17,12 +17,17 @@ from .analyze import make_window, analyze_series
 from .cache import Cache
 from .charts import make_charts
 from .fetch import Fetcher, UnknownProject
+from .i18n import note_text
 from .langs import LanguageError, parse_langs
 from .net import Client, NetworkError
 from .rank import CRITERIA_DOC, WeightsError, parse_weights, rank
 from .resolve import ResolveError, Resolver
 
 MAX_COMBINATIONS = 40
+_AGENT_TIPS = {  # extra advice for the agent only (not printed in the report)
+    "basket_uneven": " Prefer comparing languages on the same items (run each item as its own --topic).",
+    "ambiguous": " See 'topics[].alternatives'; re-run with --topic <QID> if the wrong concept was picked.",
+}
 
 
 class UsageError(ValueError):
@@ -188,17 +193,15 @@ def cmd_run(a) -> int:
     _write_csv(study_dir / "data" / "monthly.csv", results, totals)
     st.save(study_dir, cfg)
 
-    notes = list(window.notes)
+    note_codes = list(window.note_codes)
     if any(t.ambiguous for t in resolved):
-        notes.append("At least one topic is ambiguous — check 'topics' before drawing conclusions.")
-    uneven = sorted({f"{r['topic']}: {', '.join(r['basket_missing'])} missing in {r['lang']}"
-                     for r in results if r.get("basket_missing")})
+        note_codes.append({"code": "ambiguous", "params": {}})
+    uneven = sorted({f"{r['lang']}: {', '.join(r['basket_missing'])}" for r in results if r.get("basket_missing")})
     if uneven:
-        notes.append("Topic baskets are covered unevenly, so languages are compared on different article sets ("
-                     + "; ".join(uneven) + "). Prefer comparing languages on the same items, e.g. run each item "
-                     "as its own --topic.")
+        note_codes.append({"code": "basket_uneven", "params": {"detail": "; ".join(uneven)}})
     if not cfg.redirects:
-        notes.append("Redirect views were excluded (--no-redirects).")
+        note_codes.append({"code": "no_redirects", "params": {}})
+    notes = [note_text("en", n["code"], n["params"]) + (_AGENT_TIPS.get(n["code"], "")) for n in note_codes]
     summary = {
         "status": "ok" if not missing else "partial",
         "study": str(study_dir),
@@ -211,6 +214,7 @@ def cmd_run(a) -> int:
         "ranking_weights": weights,
         "ranking_criteria": CRITERIA_DOC,
         "notes": notes,
+        "note_codes": note_codes,
         "files": {"summary": str(study_dir / "summary.json"), "csv": str(study_dir / "data" / "monthly.csv"),
                   "charts": charts},
         "next": (f"Write narrative.json in the user's language (see SKILL.md step 3), then run: "
@@ -253,7 +257,9 @@ def cmd_search(a) -> int:
 
 def cmd_report(a) -> int:
     from .report import build_report   # heavy import only when needed
-    return emit(build_report(Path(a.study), Path(a.narrative) if a.narrative else None, a.lang, a.check_only))
+    lang = a.lang.strip().lower()
+    result, code = build_report(Path(a.study), Path(a.narrative) if a.narrative else None, lang, a.check_only)
+    return emit(result, code)
 
 
 # ---------------------------------------------------------------- parser
