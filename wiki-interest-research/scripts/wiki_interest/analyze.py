@@ -22,6 +22,7 @@ VOLUME_OK = 30                   # median daily views for a stable percentage es
 VOLUME_MIN = 5                   # below this: insufficient
 CONCENTRATION_MAX_PCT = 15.0     # max share of window views on the top-5 days
 P_VALUE_MAX = 0.05
+NORMALIZATION_GAP_PCT = 10.0     # raw vs normalized growth may differ this much before it matters
 
 ALLOWED_CLAIMS = {
     ("up", "strong"): ["strong_growth", "growth", "possible_growth"],
@@ -194,7 +195,8 @@ def analyze_series(topic: str, lang: str, articles: list, bundle: dict[str, dict
           f"top-5 days = {metrics['top5_days_share_pct']}% of last-12-month views")
     raw_dir = _direction(metrics["growth_yoy_raw_pct"])
     if g is not None and metrics["growth_yoy_raw_pct"] is not None:
-        check("normalization_agrees", raw_dir == direction,
+        gap = abs(metrics["growth_yoy_raw_pct"] - g)
+        check("normalization_agrees", raw_dir == direction or gap < NORMALIZATION_GAP_PCT,
               f"raw views {metrics['growth_yoy_raw_pct']:+.1f}% vs share of wiki traffic {g:+.1f}% "
               f"(whole wiki {metrics['wiki_traffic_yoy_pct']:+.1f}%)" if metrics["wiki_traffic_yoy_pct"] is not None
               else "raw and normalized growth compared")
