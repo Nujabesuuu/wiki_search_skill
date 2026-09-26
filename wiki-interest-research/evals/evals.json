@@ -1,0 +1,50 @@
+{
+  "skill_name": "wiki-interest-research",
+  "evals": [
+    {
+      "id": "fasting-pl-cs",
+      "turns": ["Порівняй зростання інтересу до інтервального голодування в польськомовній та чеськомовній Wikipedia за останні два роки."],
+      "expected_output": "Ukrainian answer + Ukrainian 1-page PDF. States that Polish Wikipedia has no dedicated article (does not invent Polish numbers; may offer a clearly labelled proxy such as 'Głodówka lecznicza'). Czech: growth (share) with its confidence and the reason (low volume). Window 24 months. Mentions language != country and attention != purchase intent.",
+      "traps": ["pl article missing", "cs article very small"]
+    },
+    {
+      "id": "astronomy-uk-trust",
+      "turns": ["Ми думаємо додати курс з астрономії до освітнього застосунку. Чи зростає інтерес до цієї теми в україномовній Wikipedia, і наскільки цьому зростанню можна довіряти?"],
+      "expected_output": "Direct yes/no answer on growth for uk astronomy with growth_yoy_pct, raw vs normalized distinction, confidence grade and the specific checks behind it (significance, spikes, volume), seasonality handled. Recommendation for the course decision and validation steps. Ukrainian PDF.",
+      "traps": ["must explain trust, not only the trend", "wiki-wide traffic decline"]
+    },
+    {
+      "id": "english-learning-audiences",
+      "turns": ["We're building a language-learning app. Compare interest in learning English across the Polish, German, Spanish, Turkish and Ukrainian Wikipedias and prepare a short report: which audiences should we research next and why?"],
+      "expected_output": "Chooses the learning concept (English as a second or foreign language) and/or explains the basket choice; handles languages where the ESL article is missing or basket uneven; ranks audiences using growth + size + confidence with stated weights; English 1-page PDF; clear 'research next' list with reasons and caveats.",
+      "traps": ["topic mapping of a vague intent", "uneven basket coverage", "ranking must be explained"]
+    },
+    {
+      "id": "astronomy-followup",
+      "turns": [
+        "Is interest in astronomy growing on Ukrainian Wikipedia? Short answer please.",
+        "Now add Polish and Czech, use three years instead of two, and give me a PDF I can share with my cofounder."
+      ],
+      "expected_output": "Turn 1: short answer with number + confidence, no need for PDF. Turn 2: reuses the study (--study with --add-langs and --months 36), updated comparison, English PDF with three languages, numbers updated (not reused from turn 1).",
+      "traps": ["follow-up must reuse the study", "stale numbers after window change"]
+    },
+    {
+      "id": "custom-criteria-yoga",
+      "turns": ["For our fitness app, compare interest in yoga across German, French, Spanish and Italian Wikipedia. We care mostly about audience size, momentum matters less. Which market should we localise into first?"],
+      "expected_output": "Uses --weights emphasising volume (e.g. volume 0.6) and states them; answer picks the top option by that criterion and explains trade-off vs growth; English PDF; caveats (language != country, Spanish spans many countries).",
+      "traps": ["must translate criteria into weights", "Italian not in report label languages (labels fall back to en is fine)"]
+    },
+    {
+      "id": "ambiguous-mercury",
+      "turns": ["Is interest in Mercury growing on German and French Wikipedia?"],
+      "expected_output": "Notices the topic is ambiguous (planet / element / other) and either asks the user or explicitly states which concept was analysed and offers the alternatives. Must not silently present one meaning as 'Mercury'.",
+      "traps": ["ambiguity flag"]
+    },
+    {
+      "id": "casual-stoicism",
+      "turns": ["hey is stoicism actually getting more popular in poland or is it just my feed? need something i can send my cofounder"],
+      "expected_output": "Maps 'in Poland' to Polish Wikipedia and says language != country; gives growth with honest confidence; produces an English 1-page PDF (user wrote English) and the path; concise, casual tone OK.",
+      "traps": ["no mention of Wikipedia in the prompt", "country vs language"]
+    }
+  ]
+}
