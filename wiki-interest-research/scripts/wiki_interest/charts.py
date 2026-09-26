@@ -94,15 +94,14 @@ def growth_chart(results: list[dict], colors: dict[str, str], path: Path, lang: 
                 hatch="////" if weak else None, edgecolor="white", linewidth=0.8,
                 alpha=0.55 if weak else 1.0)
         conf = L[r["confidence"]]
-        ax.annotate(f"{g:+.1f}%  ·  {conf}", xy=(g, i), xytext=(4 if g >= 0 else -4, 0),
-                    textcoords="offset points", va="center", ha="left" if g >= 0 else "right",
-                    fontsize=7.5, color=INK)
+        ax.annotate(f"{g:+.1f}%  ·  {conf}", xy=(max(g, 0), i), xytext=(4, 0),
+                    textcoords="offset points", va="center", ha="left", fontsize=7.5, color=INK)
     ax.axvline(0, color=INK2, linewidth=0.8)
     ax.set_yticks(range(len(rows)), [series_label(r, multi_topic, lang) for r in rows])
     lo = min([0] + [r["metrics"]["growth_yoy_pct"] for r in rows])
     hi = max([0] + [r["metrics"]["growth_yoy_pct"] for r in rows])
-    pad = max(12.0, (hi - lo) * 0.45)
-    ax.set_xlim(lo - (pad if lo < 0 else 2), hi + pad)
+    span = max(hi - lo, 10.0)
+    ax.set_xlim(lo - (span * 0.05 if lo < 0 else 2), hi + span * 0.75)
     ax.set_xlabel(L["growth_axis"])
     ax.grid(axis="x", color=GRID, linewidth=0.6)
     ax.set_axisbelow(True)
@@ -111,7 +110,7 @@ def growth_chart(results: list[dict], colors: dict[str, str], path: Path, lang: 
     ax.set_title(L["growth_title"], fontsize=8.5)
     if any(r["confidence"] in ("Low", "Insufficient") for r in rows):
         ax.legend(handles=[Patch(facecolor="white", edgecolor=INK2, hatch="////", label=L["low_conf_legend"])],
-                  loc="upper left", bbox_to_anchor=(0, -0.28 if len(rows) < 4 else -0.15))
+                  loc="upper left", bbox_to_anchor=(0, -0.45 if len(rows) < 3 else -0.25))
     fig.tight_layout()
     fig.savefig(path, facecolor="white")
     plt.close(fig)

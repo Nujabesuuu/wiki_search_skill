@@ -15,6 +15,13 @@ import itertools
 import re
 
 NEUTRAL_CLAIMS = {"context", "comparison"}
+# Intensifiers that overstate moderate/weak evidence (stems; en, uk, pl, cs, de, es, fr).
+INTENSIFIERS = ["clearly", "sharply", "dramatic", "significantly", "genuinely", "real trend", "not random",
+                "not noise", "consistently", "steep", "massive", "huge", "booming", "collaps", "plummet", "soar",
+                "виразн", "різк", "значн", "суттєв", "не випадков", "стрімк", "драматичн", "обвал", "беззаперечн",
+                "wyraźn", "gwałtown", "znacząc", "dramatycz", "výrazn", "prudk", "značn", "dramatick",
+                "deutlich", "drastisch", "dramatisch", "massiv", "claramente", "drástic", "dramátic", "enorme",
+                "nettement", "fortement", "drastique", "spectaculaire"]
 ALL_CLAIMS = {"strong_growth", "growth", "possible_growth", "stable", "possible_decline", "decline",
               "strong_decline", "insufficient_data", "no_article"} | NEUTRAL_CLAIMS
 LIMITS = {"title": 90, "headline": 240, "finding": 300, "recommendation": 420, "next_step": 170}
@@ -29,6 +36,9 @@ _PRIMARY = {"growth_yoy_pct", "growth_yoy_raw_pct", "growth_yoy_no_spikes_pct", 
             "views_avg_month", "views_per_million", "growth_recent_3m_pct", "median_daily_views"}
 _ISO_DATE = re.compile(r"\b(20\d\d|19\d\d)-(0[1-9]|1[0-2])(?:-(\d\d))?\b")
 _SLASH_MONTH = re.compile(r"\b(0?[1-9]|1[0-2])/(\d\d|20\d\d)\b")
+_DMY = re.compile(r"\b\d{1,2}[./]\d{1,2}[./](?:19|20)?\d\d\b")
+_WORDY_DATE = re.compile(r"\b\d{1,2}\.?\s+[^\W\d_]{3,}\.?,?\s+(?:19|20)\d\d\b|"
+                         r"\b[^\W\d_]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+(?:19|20)\d\d\b")
 
 
 # ---------------------------------------------------------------- numbers
@@ -66,6 +76,8 @@ def extract_numbers(text: str, protected: list[str]) -> list[dict]:
         if p:
             text = text.replace(p, " ")
     text = _ISO_DATE.sub(" ", text)
+    text = _WORDY_DATE.sub(" ", text)
+    text = _DMY.sub(" ", text)
     text = _SLASH_MONTH.sub(" ", text)
     found = []
     for m in _NUM_RE.finditer(text):
@@ -160,7 +172,7 @@ def _lookup(summary: dict, ref: str) -> tuple[list[dict], bool]:
     return res, bool(miss) and not res
 
 
-def verify_narrative(narrative: dict, summary: dict) -> dict:
+def verify_narrative(narrative: dict, summary: dict, lang: str = "en") -> dict:
     errors: list[dict] = []
     warnings: list[str] = []
     values = known_values(summary)
@@ -186,6 +198,19 @@ def verify_narrative(narrative: dict, summary: dict) -> dict:
     text_field("title", narrative.get("title"), LIMITS["title"], required=False)
     text_field("headline", narrative.get("headline"), LIMITS["headline"])
     text_field("recommendation", narrative.get("recommendation"), LIMITS["recommendation"])
+    strong_somewhere = any(r.get("claim_strength") == "strong" or "strong_growth" in r["allowed_claims"] or "strong_decline" in r["allowed_claims"] for r in summary["results"])
+
+    def lint(field: str, text, strong_ok: bool) -> None:
+        if strong_ok or not isinstance(text, str):
+            return
+        low = text.lower()
+        hits = [w for w in INTENSIFIERS if w in low]
+        if hits:
+            errors.append({"field": field, "problem": f"overstating words for moderate/weak evidence: {', '.join(hits)}",
+                           "hint": "Use the hedged wording from draft (e.g. 'declining (moderate evidence)')."})
+
+    lint("headline", narrative.get("headline"), strong_somewhere)
+    lint("recommendation", narrative.get("recommendation"), strong_somewhere)
 
     findings = narrative.get("findings")
     if not isinstance(findings, list) or not findings:
@@ -202,6 +227,7 @@ def verify_narrative(narrative: dict, summary: dict) -> dict:
             continue
         text_field(f"{name}.text", f.get("text"), LIMITS["finding"])
         claim = f.get("claim")
+        lint(f"{name}.text", f.get("text"), claim in ("strong_growth", "strong_decline"))
         about = f.get("about") or []
         if isinstance(about, str):
             about = [about]
@@ -245,6 +271,17 @@ def verify_narrative(narrative: dict, summary: dict) -> dict:
         errors.append({"field": "next_steps", "problem": f"max {MAX_NEXT} items", "hint": ""})
     for i, s in enumerate(steps):
         text_field(f"next_steps[{i}]", s, LIMITS["next_step"])
+
+    draft = (summary.get("draft") or {}).get("narrative_draft") or {}
+    if lang != "en" and draft:
+        untranslated = [k for k in ("title", "headline") if narrative.get(k) and narrative.get(k) == draft.get(k)]
+        untranslated += [f"findings[{i}].text" for i, f in enumerate(findings) if isinstance(f, dict)
+                         and f.get("text") in {d["text"] for d in draft.get("findings", [])}]
+        for field in untranslated:
+            errors.append({"field": field, "problem": f"still the English draft text, but the report language is '{lang}'",
+                           "hint": "Translate it into the user's language (keep the numbers)."})
+    if lang != "en" and not narrative.get("title"):
+        errors.append({"field": "title", "problem": "missing", "hint": "Add a short title in the report language."})
 
     referenced = {str(a).replace("|", "@").rpartition("@")[2].lower()
                   for f in findings if isinstance(f, dict) for a in (f.get("about") or [])}

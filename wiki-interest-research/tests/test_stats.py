@@ -142,3 +142,14 @@ def test_winsorize_caps_spikes_but_keeps_gradual_growth():
 def test_top_days_share():
     values = np.array([1.0] * 95 + [100.0] * 5)
     assert stats.top_days_share(values, k=5) == pytest.approx(500 / 595)
+
+
+def test_mark_recurring_distinguishes_seasonal_from_one_off():
+    days = _days(date(2024, 1, 1), 800)
+    values = np.full(800, 100.0)
+    values[245] = 900          # 2024-09-02: school start
+    values[245 + 365] = 800    # 2025-09-02 again
+    values[100] = 5000         # one-off news spike
+    spikes = stats.mark_recurring(stats.detect_spikes(days, values), days, values)
+    by_date = {s["peak_date"]: s["recurring_yearly"] for s in spikes}
+    assert by_date["2024-09-02"] is True and by_date["2024-04-10"] is False

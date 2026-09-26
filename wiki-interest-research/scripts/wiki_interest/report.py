@@ -100,8 +100,10 @@ def _story(summary: dict, narrative: dict, lang: str, charts: dict, colors_map: 
     langs = ", ".join(dict.fromkeys([r["lang"] for r in summary["results"]] + [m["lang"] for m in summary["missing"]]))
     w = summary["window"]
     title = narrative.get("title") or f"{L['report_title']}: {topics}"
+    concepts = "; ".join(i.split(": ", 1)[-1] + f" ({i.split(':')[0]})" for t in summary["topics"] for i in t["items"])
     story = [_p(title, S["title"]),
              _p(f"{L['window']}: {w['start']} – {w['end']}  ·  {langs}  ·  {summary.get('generated', '')}", S["sub"]),
+             _p(f"Wikidata: {concepts}", S["sub"]),
              Spacer(1, 5)]
 
     box = [[_p(L["takeaway"].upper(), S["small"])], [_p(narrative.get("headline", ""), S["head"])]]
@@ -130,7 +132,11 @@ def _story(summary: dict, narrative: dict, lang: str, charts: dict, colors_map: 
         ct.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 0)]))
         story += [ct, Spacer(1, 4)]
 
-    story += [_p(L["comparison"], S["h"]), _table(summary, L, S, colors_map, width, lang), Spacer(1, 6)]
+    story += [_p(L["comparison"], S["h"]), _table(summary, L, S, colors_map, width, lang)]
+    if sum(1 for x in summary["ranking"] if x.get("rank")) >= 2:
+        wt = ", ".join(f"{L['w_' + k]} {round(v * 100)}%" for k, v in summary["ranking_weights"].items() if v)
+        story.append(_p(f"{L['ranked_by']}: {wt}", S["small"]))
+    story.append(Spacer(1, 6))
 
     findings = [f["text"] for f in narrative.get("findings", []) if isinstance(f, dict) and f.get("text")]
     if findings:
@@ -184,7 +190,7 @@ def build_report(study_dir: Path, narrative_path: Path | None, lang: str, check_
         except (OSError, json.JSONDecodeError) as e:
             return {"status": "error", "error": f"Cannot read narrative JSON: {e}",
                     "hint": "Write valid JSON (double quotes, no trailing commas)."}, 2
-        check = verify_narrative(narrative, summary)
+        check = verify_narrative(narrative, summary, lang)
         warnings += check["warnings"]
         if not check["ok"]:
             return {"status": "rejected", "errors": check["errors"], "warnings": warnings,

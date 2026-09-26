@@ -43,7 +43,8 @@ TOOLS = [
 
 def api_key() -> str:
     key = os.environ.get("OPENROUTER_API_KEY")
-    for env in (SKILL_DIR.parent / ".env", SKILL_DIR / ".env"):
+    repo_skill = Path(__file__).resolve().parents[1]
+    for env in (repo_skill.parent / ".env", repo_skill / ".env"):
         if not key and env.exists():
             m = re.search(r"^OPENROUTER_API_KEY=(.+)$", env.read_text(), re.M)
             key = m.group(1).strip() if m else None

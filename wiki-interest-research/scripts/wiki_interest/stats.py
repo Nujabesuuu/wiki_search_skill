@@ -202,3 +202,24 @@ def top_days_share(values: np.ndarray, k: int = 5) -> float:
     if total <= 0:
         return 0.0
     return float(np.sort(values)[-k:].sum() / total)
+
+
+def mark_recurring(spikes: list[dict], days: Sequence[date], values: np.ndarray, window: int = 7,
+                   ratio: float = 2.0) -> list[dict]:
+    """Flag spikes that repeat about a year earlier/later (+-`window` days), e.g. the start of
+    the school year. Those are seasonality, not news, and the agent must not call them events."""
+    values = np.asarray(values, dtype=float)
+    base = np.maximum(rolling_median(values), 1.0)
+    index = {d: i for i, d in enumerate(days)}
+    for sp in spikes:
+        peak = date.fromisoformat(sp["peak_date"])
+        recurring = False
+        for years in (-2, -1, 1, 2):
+            center = peak + timedelta(days=365 * years)
+            idx = [index[center + timedelta(days=k)] for k in range(-window, window + 1)
+                   if center + timedelta(days=k) in index]
+            if idx and max(values[i] / base[i] for i in idx) >= ratio:
+                recurring = True
+                break
+        sp["recurring_yearly"] = recurring
+    return spikes

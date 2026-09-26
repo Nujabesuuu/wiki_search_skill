@@ -32,7 +32,8 @@ def study(tmp_path):
     (tmp_path / "study.json").write_text(json.dumps({"colors": {"астрономія|uk": "#2a78d6",
                                                                 "астрономія|pl": "#eb6834"}}), "utf-8")
     g_uk = results[0]["metrics"]["growth_yoy_pct"]
-    narrative = {"headline": f"Інтерес до астрономії в українській Вікіпедії зростає: {g_uk}% за рік.",
+    narrative = {"title": "Інтерес до астрономії у Вікіпедії",
+                 "headline": f"Інтерес до астрономії в українській Вікіпедії зростає: {g_uk}% за рік.",
                  "findings": [{"text": f"Українська частка зросла на {g_uk}%.", "about": ["uk"],
                                "claim": results[0]["allowed_claims"][0]},
                               {"text": "Чеської статті немає.", "about": ["cs"], "claim": "no_article"}],
@@ -73,3 +74,11 @@ def test_invalid_json_gives_actionable_error(study):
     (study / "broken.json").write_text("{'headline': 1,}", "utf-8")
     out, code = build_report(study, study / "broken.json", "en")
     assert code == 2 and "double quotes" in out["hint"]
+
+
+def test_non_english_report_requires_title(study):
+    n = json.loads((study / "n.json").read_text("utf-8"))
+    del n["title"]
+    (study / "nt.json").write_text(json.dumps(n, ensure_ascii=False), "utf-8")
+    out, code = build_report(study, study / "nt.json", "uk")
+    assert code == 3 and any(e["field"] == "title" for e in out["errors"])

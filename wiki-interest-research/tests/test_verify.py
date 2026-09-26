@@ -105,5 +105,33 @@ def test_number_formats(text, value):
 
 
 def test_protected_titles_dates_and_qids_are_ignored():
-    text = "Article Q1666254 '5:2 diet' peaked on 2025-04-14 and in 04/25."
+    text = ("Article Q1666254 '5:2 diet' peaked on 2025-04-14 and in 04/25, again on 26 September 2026, "
+            "September 3, 2024, 14 квітня 2025 and 14.04.2025.")
     assert extract_numbers(text, ["5:2 diet"]) == []
+
+
+def test_intensifiers_rejected_for_moderate_claims():
+    bad = copy.deepcopy(GOOD)
+    bad["findings"][0]["text"] = "Czech interest is clearly collapsing: share down 47.7%."
+    out = verify_narrative(bad, SUMMARY)
+    assert any("overstating" in e["problem"] for e in out["errors"])
+    bad["findings"][0]["text"] = "Чеська: виразне падіння частки на 47.7%."
+    assert not verify_narrative(bad, SUMMARY)["ok"]
+
+
+def test_strong_claim_may_use_strong_words():
+    n = copy.deepcopy(GOOD)
+    n["findings"][1]["text"] = "Ukrainian share is clearly growing: +25.3%."
+    assert verify_narrative(n, SUMMARY)["ok"]
+
+
+def test_untranslated_draft_rejected_for_other_languages():
+    summary = copy.deepcopy(SUMMARY)
+    summary["draft"] = {"narrative_draft": {"title": "Wikipedia interest: fasting", "headline": GOOD["headline"],
+                                            "findings": [{"text": GOOD["findings"][0]["text"]}]}}
+    n = copy.deepcopy(GOOD)
+    n["title"] = "Wikipedia interest: fasting"
+    out = verify_narrative(n, summary, lang="uk")
+    fields = {e["field"] for e in out["errors"]}
+    assert {"title", "headline", "findings[0].text"} <= fields
+    assert verify_narrative(n, summary, lang="en")["ok"]

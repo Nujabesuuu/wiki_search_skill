@@ -7,6 +7,7 @@ still be written in any language.
 from __future__ import annotations
 
 _EN = {
+    "ranked_by": "Rows ordered by ranking; weights", "w_growth": "momentum", "w_volume": "audience size", "w_share": "share of wiki", "w_confidence": "evidence quality",
     "trend_title": "Interest: views per million wiki pageviews",
     "trend_axis": "views per million",
     "growth_title": "Change in interest, year over year",
@@ -43,6 +44,7 @@ _EN = {
 }
 
 _UK = {
+    "ranked_by": "Рядки впорядковано за рейтингом; ваги", "w_growth": "динаміка", "w_volume": "розмір аудиторії", "w_share": "частка у вікі", "w_confidence": "якість доказів",
     "trend_title": "Інтерес: перегляди на мільйон переглядів вікі",
     "trend_axis": "переглядів на мільйон",
     "growth_title": "Зміна інтересу за рік",
@@ -79,6 +81,7 @@ _UK = {
 }
 
 _PL = {
+    "ranked_by": "Wiersze według rankingu; wagi", "w_growth": "dynamika", "w_volume": "wielkość odbiorców", "w_share": "udział w wiki", "w_confidence": "jakość danych",
     "trend_title": "Zainteresowanie: wyświetlenia na milion odsłon wiki",
     "trend_axis": "wyświetlenia na milion",
     "growth_title": "Zmiana zainteresowania r/r",
@@ -115,6 +118,7 @@ _PL = {
 }
 
 _CS = {
+    "ranked_by": "Řádky seřazeny podle pořadí; váhy", "w_growth": "dynamika", "w_volume": "velikost publika", "w_share": "podíl na wiki", "w_confidence": "kvalita dat",
     "trend_title": "Zájem: zobrazení na milion zobrazení wiki",
     "trend_axis": "zobrazení na milion",
     "growth_title": "Meziroční změna zájmu",
@@ -150,6 +154,7 @@ _CS = {
 }
 
 _DE = {
+    "ranked_by": "Zeilen nach Rangfolge; Gewichte", "w_growth": "Dynamik", "w_volume": "Publikumsgröße", "w_share": "Anteil im Wiki", "w_confidence": "Datenqualität",
     "trend_title": "Interesse: Aufrufe pro Million Wiki-Aufrufe",
     "trend_axis": "Aufrufe pro Million",
     "growth_title": "Veränderung des Interesses zum Vorjahr",
@@ -187,6 +192,7 @@ _DE = {
 }
 
 _ES = {
+    "ranked_by": "Filas ordenadas por ranking; pesos", "w_growth": "impulso", "w_volume": "tamaño de audiencia", "w_share": "cuota en la wiki", "w_confidence": "calidad de la evidencia",
     "trend_title": "Interés: vistas por millón de vistas de la wiki",
     "trend_axis": "vistas por millón",
     "growth_title": "Cambio interanual del interés",
@@ -224,6 +230,7 @@ _ES = {
 }
 
 _FR = {
+    "ranked_by": "Lignes triées par classement ; pondérations", "w_growth": "dynamique", "w_volume": "taille d'audience", "w_share": "part du wiki", "w_confidence": "qualité des données",
     "trend_title": "Intérêt : vues par million de vues du wiki",
     "trend_axis": "vues par million",
     "growth_title": "Évolution de l'intérêt sur un an",

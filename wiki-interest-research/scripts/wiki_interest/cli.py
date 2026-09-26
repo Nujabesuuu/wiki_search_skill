@@ -16,9 +16,10 @@ from . import study as st
 from .analyze import make_window, analyze_series
 from .cache import Cache
 from .charts import make_charts
+from .draft import build_draft
 from .fetch import Fetcher, UnknownProject
 from .i18n import note_text
-from .langs import LanguageError, parse_langs
+from .langs import LanguageError, lang_name, parse_langs
 from .net import Client, NetworkError
 from .rank import CRITERIA_DOC, WeightsError, parse_weights, rank
 from .resolve import ResolveError, Resolver
@@ -82,12 +83,33 @@ def _compact(r: dict) -> dict:
         out["basket_missing"] = r["basket_missing"]
     if r["spikes"]:
         big = max(r["spikes"], key=lambda s: s["extra_views"])
-        out["largest_spike"] = {k: big[k] for k in ("peak_date", "peak_views", "peak_ratio", "days")}
+        out["largest_spike"] = {k: big[k] for k in ("peak_date", "peak_views", "peak_ratio", "days",
+                                                    "recurring_yearly")}
     return out
+
+
+def reporting_rules(summary: dict) -> list[str]:
+    """Short rules tailored to this result, placed where a small model reads them."""
+    rules = [
+        "Build your answer from 'draft' (code-written, correct wording): translate it, keep every number and "
+        "hedge, do not add new numbers, ratios or causes.",
+        "Say 'share of <language> Wikipedia views' for growth_yoy_pct (never 'views fell X%'); raw views are "
+        "growth_yoy_raw_pct. growth_yoy_pct already removes wiki-wide traffic changes.",
+        "Name results by language edition ('Polish-language Wikipedia'), never as a country.",
+        "Do not quote p-values; use the plain confidence reasons from 'draft'.",
+    ]
+    if not any(x.get("rank") for x in summary["ranking"]) and summary["results"]:
+        rules.append("Nothing could be ranked (insufficient data). Do not recommend an order; broaden the topic "
+                     "with a basket and re-run once.")
+    if any(t.get("ambiguous") for t in summary["topics"]):
+        rules.append("Ambiguous topic: name the analysed meaning in your first sentence and offer the alternatives.")
+    return rules
 
 
 def compact_summary(summary: dict) -> dict:
     return {
+        "reporting_rules": reporting_rules(summary),
+        "draft": summary.get("draft") or build_draft(summary),
         "status": summary["status"],
         "study": summary["study"],
         "window": summary["window"],
@@ -151,7 +173,7 @@ def cmd_run(a) -> int:
     if len(cfg.topics) * len(cfg.langs) > MAX_COMBINATIONS:
         raise UsageError(f"{len(cfg.topics) * len(cfg.langs)} topic x language combinations; the limit is "
                          f"{MAX_COMBINATIONS} per study. Split into several studies.")
-    study_dir = study_dir or st.default_dir(cfg)
+    study_dir = (study_dir or st.default_dir(cfg)).resolve()
     weights = parse_weights(cfg.weights)
     window = make_window(cfg.months, cfg.end)
 
@@ -217,9 +239,11 @@ def cmd_run(a) -> int:
         "note_codes": note_codes,
         "files": {"summary": str(study_dir / "summary.json"), "csv": str(study_dir / "data" / "monthly.csv"),
                   "charts": charts},
-        "next": (f"Write narrative.json in the user's language (see SKILL.md step 3), then run: "
-                 f"scripts/wpv report --study {study_dir} --narrative <file> --lang <code>"),
+        "next": (f"Answer from 'draft'. For a PDF: translate draft.narrative_draft into the user's language, fill "
+                 f"'recommendation', save it as narrative.json, then run: scripts/wpv report --study {study_dir} "
+                 f"--narrative narrative.json --lang <user's language code>"),
     }
+    summary["draft"] = build_draft(summary)
     (study_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), "utf-8")
     log(f"done in {time.time() - t0:.1f}s, {client.requests_made} HTTP requests")
     return emit(compact_summary(summary))

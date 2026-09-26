@@ -135,7 +135,7 @@ def analyze_series(topic: str, lang: str, articles: list, bundle: dict[str, dict
     s_mk, p_mk = stats.seasonal_mann_kendall(per_million[valid])
     top5 = stats.top_days_share(days_last12)
     median_daily = float(np.median(days_last12)) if len(days_last12) else 0.0
-    spikes = stats.detect_spikes(day_list, daily, limit=3)
+    spikes = stats.mark_recurring(stats.detect_spikes(day_list, daily, limit=3), day_list, daily)
 
     nonzero = np.nonzero(daily)[0]
     first_day = day_list[nonzero[0]] if len(nonzero) else None
