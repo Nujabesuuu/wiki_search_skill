@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from wiki_interest.verify import _always_ok, _matches, extract_numbers, known_values  # noqa: E402
+from wiki_interest.answer_check import check_answer, unmatched_numbers  # noqa: E402
 
 
 def pdf_pages(path: Path) -> int:
@@ -55,23 +55,9 @@ def main() -> int:
     out["answer_language_ok"] = out["answer_script"] == expected_script
 
     if summaries and answer:
-        values = []
-        protected = []
-        for sp in summaries:
-            s = json.loads(sp.read_text("utf-8"))
-            values += known_values(s)
-            protected += [t for r in s["results"] for t in r["articles"]] + [r["topic"] for r in s["results"]]
-            protected += [m for x in s["missing"] for m in x.get("suggestions", [])]
-            protected += [str(Path(s["study"]).name)]
-        # paths and file names contain digits that are not claims
-        cleaned = re.sub(r"\S*[/\\]\S*|\S+\.(pdf|png|json|csv)\b", " ", answer)
-        nums = extract_numbers(cleaned, protected)
-        unmatched = [n["raw"] for n in nums
-                     if not any(_always_ok(r) for r in n["readings"])
-                     and not any(_matches(r, v) for r in n["readings"] for _, v in values)]
-        checked = [n for n in nums if not any(_always_ok(r) for r in n["readings"])]
-        out["answer_numbers_checked"] = len(checked)
-        out["answer_numbers_unmatched"] = unmatched
+        latest = json.loads(summaries[-1].read_text("utf-8"))
+        out["answer_numbers_unmatched"] = unmatched_numbers(answer, latest)
+        out["answer_check"] = check_answer(answer, latest, summaries[-1].parent)["issues"]
     ok = bool(summaries) and out["answer_language_ok"] and not out.get("answer_numbers_unmatched")
     if a.needs_report:
         ok = ok and any(r["pages"] == 1 for r in out["reports"]) and out["narrative_verified"]

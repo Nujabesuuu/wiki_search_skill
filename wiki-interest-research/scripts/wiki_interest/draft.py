@@ -115,9 +115,10 @@ def timing_sentence(r: dict) -> str | None:
     g, g3 = m["growth_yoy_pct"], m["growth_recent_3m_pct"]
     if g3 is None:
         return None
-    text = f"Most recent 3 months vs the same months a year earlier: {_pct(g3)}"
-    if m.get("views_avg_month_recent_3m") is not None:
-        text += f" (about {_int(m['views_avg_month_recent_3m'])} views per month in the last 3 months)"
+    text = f"Most recent 3 months: share of views {_pct(g3)} vs the same months a year earlier"
+    if m.get("views_avg_month_recent_3m") is not None and m.get("views_avg_month_recent_3m_year_ago") is not None:
+        text += (f" (raw views: about {_int(m['views_avg_month_recent_3m'])} per month, vs about "
+                 f"{_int(m['views_avg_month_recent_3m_year_ago'])} in those months a year earlier)")
     if g is not None and abs(g3) >= 5 and (g3 > 0) != (g > 0):
         text += "; this is the opposite direction, so the change may be levelling off"
     elif g is not None and abs(g) >= 10 and abs(g3) < abs(g) / 2 and (g3 > 0) == (g > 0):
@@ -136,8 +137,10 @@ def series_sentence(r: dict, multi_topic: bool, months: int) -> str:
     text = (f"{label}: interest is {WORDING[claim]}. Its share of all {lname}-language Wikipedia views changed "
             f"{_pct(m['growth_yoy_pct'])} year over year (last 12 months vs the previous 12); raw views changed "
             f"{_pct(m['growth_yoy_raw_pct'])} while the whole wiki changed {_pct(m['wiki_traffic_yoy_pct'])}. "
-            f"About {_int(m['views_avg_month'])} views per month on average over the last 12 months "
-            f"({m['views_per_million']:g} per million views of that wiki).")
+            f"About {_int(m['views_avg_month'])} views per month on average over the last 12 months"
+            + (f" (about {_int(m['views_avg_month_prev_12m'])} in the previous 12)"
+               if m.get("views_avg_month_prev_12m") is not None else "")
+            + f"; {m['views_per_million']:g} per million views of that wiki.")
     if months > 24 and m["trend_per_year_pct"] is not None:
         text += f" Trend over the whole {months}-month period: {_pct(m['trend_per_year_pct'])} per year."
     if m["median_daily_views"] < LOW_VOLUME:
@@ -247,18 +250,19 @@ def recommendation_draft(summary: dict, results: list[dict], multi: bool) -> str
                 max(usable, key=lambda r: r["metrics"]["views_avg_month"]))
     name = series_label(best["lang"], best["topic"] if multi else None)
     claim = best["allowed_claims"][0]
-    lead = f"Start with {name}" if len(usable) > 1 else f"For {name}"
+    first = f"Of the compared options, start with {name}. " if len(usable) > 1 else ""
     if best["metrics"]["median_daily_views"] < LOW_VOLUME:
-        return (f"{lead}, but treat Wikipedia as weak evidence here: the audience is very small. Validate first with "
-                f"a direct demand test; this changes only if the test shows clear demand.")
+        return (f"{first}Treat Wikipedia as weak evidence for {name}: the audience is very small. Validate first "
+                f"with a direct demand test; this changes only if the test shows clear demand.")
     if best["direction"] == "up":
-        return (f"{lead}: interest there is {WORDING[claim]}. Validate first with a small demand test (landing page "
-                f"or survey) before building; this changes if the test fails or the growth does not hold next quarter.")
+        return (f"{first}Interest on {name} is {WORDING[claim]}. Validate first with a small demand test (landing "
+                f"page or survey) before building; this changes if the test fails or the growth does not hold "
+                f"next quarter.")
     if best["direction"] == "flat":
-        return (f"{lead}: interest is roughly stable, so the case rests on audience size, not momentum. Validate "
-                f"first with a small demand test; this changes if the test is weak or interest starts to fall.")
-    return (f"{lead}, but treat Wikipedia interest as a headwind: it is {WORDING[claim]}. Go ahead only if a direct "
-            f"demand test is convincing; this changes if the decline levels off in the next 3 months.")
+        return (f"{first}Interest on {name} is roughly stable, so the case rests on audience size, not momentum. "
+                f"Validate first with a small demand test; this changes if the test is weak or interest starts to fall.")
+    return (f"{first}Treat Wikipedia interest on {name} as a headwind: it is {WORDING[claim]}. Go ahead only if a "
+            f"direct demand test is convincing; this changes if the decline levels off in the next 3 months.")
 
 
 def follow_ups(summary: dict) -> list[str]:
@@ -293,7 +297,8 @@ def answer_markdown(d: dict, summary: dict) -> str:
     lines += ["", "**What was measured and limits**"] + [f"- {x}" for x in d["topics"] + d["limits"]]
     lines += ["", f"**Recommendation:** {d['recommendation_draft']}", ""]
     ch = summary.get("files", {}).get("charts", {})
-    lines.append("**Files:** PDF report: PDF_PATH" + (f"; charts: {ch.get('trend')}, {ch.get('growth')}" if ch else ""))
+    pdf = summary.get("files", {}).get("pdf") or "PDF_PATH"
+    lines.append(f"**Files:** PDF report: {pdf}" + (f"; charts: {ch.get('trend')}, {ch.get('growth')}" if ch else ""))
     lines += ["", "**I can also:**"] + [f"- {x}" for x in follow_ups(summary)]
     return "\n".join(lines)
 
@@ -382,9 +387,13 @@ def build_draft(summary: dict) -> dict:
         if amb:   # keep the analysed meaning visible in the PDF headline
             concept = amb["items"][0].split(": ", 1)[-1].split(" — ")
             topic_label = f"{concept[0]} ({concept[1][:40].rsplit(' ', 1)[0]})" if len(concept) > 1 else concept[0]
-        headline = (f"Interest in {topic_label} ({'share of each wiki' if several else 'share of wiki'} views, year "
-                    f"over year): " + "; ".join(f"{lang_name(r['lang'])} {_pct(r['metrics']['growth_yoy_pct'])}"
-                                                for r in results[:4]))[:240]
+        parts = [f"{lang_name(r['lang'])} {_pct(r['metrics']['growth_yoy_pct'])}" if r["confidence"] != "Insufficient"
+                 else f"{lang_name(r['lang'])}: too little data" for r in results]
+        parts += [f"{lang_name(m['lang'])}: no article" for m in summary["missing"]]
+        headline = (f"Interest in {topic_label} ({'share of each wiki' if several else 'share of wiki'} views, "
+                    f"year over year): " + "; ".join(parts))
+        if len(headline) > 240:
+            headline = headline[:240].rsplit(";", 1)[0]
     draft["narrative_draft"] = {
         "title": f"Wikipedia interest: {topic_label}"[:90],
         "headline": headline,

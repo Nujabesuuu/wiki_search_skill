@@ -118,4 +118,41 @@ EVAL_RESULTS_PLACEHOLDER
 
 ## Roadmap: from basic questions to larger research
 
-ROADMAP_PLACEHOLDER
+The skill is built so that each step below is an additive module behind the same three commands and the
+same `draft` contract, so the agent-facing workflow (and the evals) stay stable while the research gets deeper.
+
+**Step 1 — Better topic coverage (more precise answers to the same questions)**
+- *Topic expansion*: build baskets automatically from Wikidata (`P279` subclass / `P361` part-of / main
+  category) with a size cap, and report per-article contributions so one dominant article is visible.
+- *Proxy articles*: when a language lacks the article, score `search` candidates by Wikidata relation
+  (same item's redirect, parent concept) instead of leaving the choice to the model.
+- *Localised labels*: take the topic label in the report language from Wikidata (`labels` in `--lang`).
+
+**Step 2 — More signals per question (better trust, still one command)**
+- *Country view*: Wikimedia's `top-by-country` and the differential-privacy per-country dataset show where
+  a language edition is read — turns "Spanish Wikipedia" into "Mexico vs Spain" when it matters.
+- *Speaker normalisation*: views per million speakers (e.g. from Ethnologue/CLDR) next to views per million
+  pageviews, for audience-size questions across languages.
+- *Clickstream* (monthly dumps for large wikis): where readers come from (search vs internal links) and what
+  they read next — a proxy for "intent" that pageviews lack.
+- *Seasonality model*: STL decomposition to report "peaks in September every year" as a feature (useful for
+  launch timing), not only as a spike.
+- *Forecast with intervals* (e.g. ETS/Prophet-style) for "where will it be in 6 months", with the interval
+  width feeding the confidence grade.
+
+**Step 3 — Larger data (hundreds of topics x dozens of languages)**
+- The REST API is fine up to a few hundred series (cache + 40 req/s + thread pool; follow-ups are free).
+  Beyond that, switch the fetch layer to the **monthly pageview dumps** (`pageview_complete`, one file per
+  month for all articles): stream them once into **DuckDB/Parquet** partitioned by wiki and month, then
+  every query is local SQL. `Fetcher` is the only module that changes.
+- Screening mode: `wpv screen --langs ... --category ...` ranks thousands of articles by the same
+  metrics and returns only the top N with drafts, so the agent never sees raw volume.
+- Scheduled refresh (cron/CI) of saved studies with a change log: "what moved since last month".
+
+**Step 4 — Evaluation as a product feature**
+- Grow `evals/evals.json` with every real user question that went wrong; keep the rubric and the objective
+  checker in CI, and run the matrix (Haiku / free OpenRouter models) on every change to `SKILL.md` or
+  `draft.py`, the two places that most affect small-model quality (see results above).
+- Add assertion checks for the chat answer (country names, uncited numbers, generalisations) to
+  `check_outputs.py`, so fewer judgements depend on an LLM grader.
+

@@ -27,7 +27,7 @@ Output fields: `status` (ok / partial = some languages missing), `study`, `windo
 
 Files in the study folder: `study.json` (parameters), `summary.json` (everything, incl. monthly series and
 all spikes), `data/monthly.csv`, `charts/*.png` (English), `charts/<lang>/*.png` and `report-<lang>.pdf`
-after `report`, `narrative.verified.json`.
+after `report`, `narrative.verified.json`; `report-en.pdf` is built by `run` itself.
 
 ## show - print the summary of an existing study (no network)
 `scripts/wpv show --study DIR`
@@ -47,3 +47,12 @@ Returns items, alternatives, articles per language (with redirect counts) and mi
 - `--lang` sets labels and the method/limitations text: en, uk, pl, cs, de, es, fr (others fall back to
   English labels; your narrative can still be in any language with Latin, Cyrillic or Greek script).
 - Without `--narrative` a data-only report is produced (not recommended).
+
+## check - verify your chat answer before sending
+`scripts/wpv check --study DIR --answer answer.md`
+Returns `status: ok` or `issues_found` with `issues[]` of type `unknown_number` (not in the data),
+`country_name` (a country instead of a language edition), `generalisation` ("all markets" when languages
+differ), `overstatement`, `dropped_line` (a language's share change or the ranking weights are missing) and
+`missing_report_path`. Works for answers in any language (numbers and paths are language-independent).
+
+Note: `run` also writes `report-en.pdf` from the verified draft (`files.pdf`); build other languages with `report`.

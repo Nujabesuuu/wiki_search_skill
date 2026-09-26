@@ -209,6 +209,18 @@ def verify_narrative(narrative: dict, summary: dict, lang: str = "en") -> dict:
             errors.append({"field": field, "problem": f"overstating words for moderate/weak evidence: {', '.join(hits)}",
                            "hint": "Use the hedged wording from draft (e.g. 'declining (moderate evidence)')."})
 
+    from .answer_check import find_country
+    langs = {r["lang"] for r in summary["results"]} | {m["lang"] for m in summary["missing"]}
+    texts = {"headline": narrative.get("headline"), "recommendation": narrative.get("recommendation")}
+    texts.update({f"findings[{i}].text": f.get("text") for i, f in enumerate(narrative.get("findings") or [])
+                  if isinstance(f, dict)})
+    for field, text in texts.items():
+        hit = find_country(text, langs) if isinstance(text, str) else None
+        if hit:
+            errors.append({"field": field, "problem": f"names a country ('{hit}')",
+                           "hint": "Describe readers of the language edition (e.g. 'Polish-language Wikipedia'), "
+                                   "not the country; the report adds the language-vs-country caveat itself."})
+
     lint("headline", narrative.get("headline"), strong_somewhere)
     lint("recommendation", narrative.get("recommendation"), strong_somewhere)
 

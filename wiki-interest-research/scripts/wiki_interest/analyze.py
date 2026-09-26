@@ -155,7 +155,9 @@ def analyze_series(topic: str, lang: str, articles: list, bundle: dict[str, dict
     direction = _direction(g)
     metrics = {
         "views_avg_month": int(round(monthly[last12].mean())),
+        "views_avg_month_prev_12m": int(round(monthly[-24:-12].mean())) if len(monthly) >= 24 else None,
         "views_avg_month_recent_3m": int(round(monthly[-3:].mean())),
+        "views_avg_month_recent_3m_year_ago": int(round(monthly[-15:-12].mean())) if len(monthly) >= 15 else None,
         "median_daily_views": round(median_daily, 1),
         "views_per_million": _sig(float(np.nansum(monthly[last12]) / tot[last12].sum() * 1e6)) if tot[last12].sum() else None,
         "growth_yoy_pct": g,

@@ -50,7 +50,7 @@ def test_answer_markdown_is_complete_with_placeholders():
     d = build_draft(_summary())
     md = d["answer_markdown"]
     assert md.startswith("**Interest in intermittent fasting")
-    assert "**Recommendation:** Start with" in md and "PDF_PATH" in md and "not countries" in md
+    assert "**Recommendation:** Of the compared options, start with" in md and "PDF_PATH" in md and "not countries" in md
     assert "Do not" not in md    # no agent instructions leak into the user-facing text
 
 

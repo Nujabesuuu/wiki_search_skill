@@ -244,12 +244,25 @@ def cmd_run(a) -> int:
         "note_codes": note_codes,
         "files": {"summary": str(study_dir / "summary.json"), "csv": str(study_dir / "data" / "monthly.csv"),
                   "charts": charts},
-        "next": (f"Answer from 'draft'. For a PDF: translate draft.narrative_draft into the user's language, fill "
-                 f"'recommendation', save it as narrative.json, then run: scripts/wpv report --study {study_dir} "
-                 f"--narrative narrative.json --lang <user's language code>"),
+        "next": (f"1) Translate draft.answer_markdown into the user's language and save it as answer.md. "
+                 f"2) If the user does not write in English, translate draft.narrative_draft into narrative.json and "
+                 f"run: scripts/wpv report --study {study_dir} --narrative narrative.json --lang <code> "
+                 f"(the English PDF is already built). 3) Run: scripts/wpv check --study {study_dir} --answer answer.md "
+                 f"and fix every issue before sending."),
     }
+    pdf_en = study_dir / "report-en.pdf"
+    summary["files"]["pdf"] = str(pdf_en)
     summary["draft"] = build_draft(summary)
     (study_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), "utf-8")
+    # Build the English PDF right away from the verified draft: small models often skip the report step.
+    from .report import build_report
+    draft_path = study_dir / "narrative.draft.json"
+    draft_path.write_text(json.dumps(summary["draft"]["narrative_draft"], ensure_ascii=False, indent=1), "utf-8")
+    rep, code = build_report(study_dir, draft_path, "en")
+    if code != 0:
+        log(f"could not build the English PDF: {rep}")
+        summary["files"]["pdf"] = None
+        (study_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), "utf-8")
     log(f"done in {time.time() - t0:.1f}s, {client.requests_made} HTTP requests")
     return emit(compact_summary(summary))
 
@@ -282,6 +295,19 @@ def cmd_search(a) -> int:
     _, _, resolver, _ = _services()
     return emit({"status": "ok", "lang": lang, "query": a.query, "titles": resolver.search_wiki(lang, a.query, a.limit),
                  "hint": f"Use a relevant title with: scripts/wpv run --study <dir> --article '{lang}:<Title>'"})
+
+
+def cmd_check(a) -> int:
+    from .answer_check import check_answer
+    study_dir = Path(a.study)
+    summary_path = study_dir / "summary.json"
+    if not summary_path.exists():
+        raise UsageError(f"No summary at {summary_path}. Run 'scripts/wpv run' first.")
+    try:
+        answer = Path(a.answer).read_text("utf-8")
+    except OSError as e:
+        raise UsageError(f"Cannot read the answer file: {e}")
+    return emit(check_answer(answer, json.loads(summary_path.read_text("utf-8")), study_dir))
 
 
 def cmd_report(a) -> int:
@@ -342,6 +368,12 @@ def build_parser() -> argparse.ArgumentParser:
     o.add_argument("--lang", default="en", help="report language for labels & caveats (en, uk, pl, cs, de, es, fr)")
     o.add_argument("--check-only", action="store_true", help="only verify the narrative, do not render")
     o.set_defaults(func=cmd_report)
+
+    c = sub.add_parser("check", help="check your chat answer before sending: unknown numbers, country names, "
+                                     "generalisations, dropped lines, missing PDF path")
+    c.add_argument("--study", required=True)
+    c.add_argument("--answer", required=True, help="text/markdown file with the answer you are about to send")
+    c.set_defaults(func=cmd_check)
     return p
 
 

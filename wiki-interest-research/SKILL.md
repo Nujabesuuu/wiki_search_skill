@@ -52,26 +52,35 @@ If `status` is `error`, follow its `hint` (exit code 4 = network: retry once). T
 - **User's own criteria** ("audience size matters most"): re-run with `--weights`, e.g.
   `--weights volume=0.6,growth=0.2,share=0.1,confidence=0.1`. The draft then states the weights.
 
-### 4. Answer in chat = translate `draft.answer_markdown`
+### 4. Write the answer = translate `draft.answer_markdown`, save it as `answer.md`
 - Translate it into the user's language. Keep every number, date, hedge and caveat exactly as written.
-- Do **not** add analysis, reasons, ratios, generalisations or causes that are not in the draft, and do
-  not drop lines (spikes, reasons, limits). You may shorten long lists of languages into a table.
-- Adapt only the **Recommendation** line to the user's product (same stance, no new facts).
-- Replace `PDF_PATH` with the path printed by the report command (step 5).
-- If the user asked for a short answer: translate only the first bold sentence, each language's
-  first two lines, the limits and the recommendation, and offer the PDF instead of making it.
-- Ukrainian terms: share of views = частка переглядів; raw views = абсолютні перегляди;
-  confidence = рівень довіри; Ukrainian-language Wikipedia = україномовна Вікіпедія;
-  spike = сплеск; survey = опитування. Write natural Ukrainian, no Russian words.
+- **Never drop** these lines: the first bold sentence, every language line with its confidence reason,
+  the ranking + trade-off lines, the limits, the recommendation, the Files line, "I can also".
+- **Never add** your own numbers (no "a year ago" figures, ratios or sums), causes, generalisations
+  ("all markets"), superlatives or country names ("in Poland"). Everything you need is in the draft.
+- Adapt only the **Recommendation** to the user's product: same stance and facts, product words allowed.
+- Short answer requested: keep the first bold sentence, the confidence reason, the limits and the
+  recommendation; mention the PDF path.
+- Ukrainian terms: share of views = частка переглядів; raw views = абсолютні перегляди; pageviews =
+  перегляди сторінок; confidence = рівень довіри; Ukrainian-language Wikipedia = україномовна Вікіпедія;
+  spike = сплеск; 3.6x normal = у 3,6 раза вище норми; survey = опитування. Natural Ukrainian, no Russian words.
 
-### 5. Build the PDF (always, unless the user asked only for a short answer)
-1. Save `draft.narrative_draft` as `narrative.json`, translating `title`, `headline`, `findings[].text`,
-   `recommendation` and `next_steps` into the user's language (keep numbers, `about`, `claim`).
-2. Run with `--lang` = the language the user wrote in:
+### 5. PDF
+`wpv run` already built the English PDF (`files.pdf`, path already in the draft). If the user does not
+write in English, also build it in their language: save `draft.narrative_draft` as `narrative.json`
+with `title`, `headline`, `findings[].text`, `recommendation`, `next_steps` translated (keep numbers,
+`about`, `claim`), then run and use the new path in your answer:
 ```bash
-scripts/wpv report --study <study> --narrative narrative.json --lang <uk|en|pl|cs|de|es|fr>
+scripts/wpv report --study <study> --narrative narrative.json --lang <uk|pl|cs|de|es|fr>
 ```
-3. If `status` is `rejected`, fix exactly the listed fields (hints show the real values) and re-run.
+If `status` is `rejected`, fix exactly the listed fields (hints show the real values) and run it again.
+
+### 6. Check the answer before sending
+```bash
+scripts/wpv check --study <study> --answer answer.md
+```
+It flags numbers that are not in the data, country names, generalisations, dropped lines and a missing
+PDF path. Fix every issue in `answer.md`, run it again until `status` is `ok`, then send `answer.md`.
 
 ## Wording by claim (in any language)
 
