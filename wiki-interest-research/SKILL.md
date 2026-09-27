@@ -1,7 +1,7 @@
 ---
 name: wiki-interest-research
 description: Measure and compare public interest in topics across Wikipedia language editions using Wikimedia pageview data - growth trends, how much to trust them, charts and a one-page shareable PDF report. Use when a user asks whether interest in a topic is growing, which languages or audiences to localise into or research next, which course/topic/content to add, or wants a data-backed report on topic demand, even if Wikipedia is not mentioned (e.g. "is interest in astronomy growing among Ukrainian speakers?").
-compatibility: Needs python3 >= 3.11, bash and internet access (wikimedia.org, wikidata.org, *.wikipedia.org). First run installs pinned numpy, matplotlib and reportlab into the skill's own .venv (about 1 minute).
+compatibility: Needs python3 >= 3.11, bash and internet access to wikimedia.org, www.wikidata.org and *.wikipedia.org (in sandboxed chats these domains must be allowed in the network settings). First run installs pinned numpy, matplotlib and reportlab from PyPI, or uses preinstalled ones if PyPI is unreachable.
 metadata:
   version: "1.0"
 ---
@@ -39,7 +39,8 @@ and files are created. If it is not executable (e.g. after upload as a zip), run
 ```bash
 scripts/wpv run --topic "intermittent fasting" --langs pl,cs --months 24
 ```
-If `status` is `error`, follow its `hint` (exit code 4 = network: retry once). The JSON contains:
+If `status` is `error`, follow its `hint`. If `network_blocked` is true, do not retry: tell the user
+to allow wikimedia.org, www.wikidata.org and *.wikipedia.org (the hint says where) and stop. The JSON contains:
 - **`reporting_rules`**: rules for this result. Follow all of them.
 - **`draft`**: the interpretation, already written correctly by code. `draft.answer_markdown` is a
   complete answer; `draft.narrative_draft` is the complete PDF text. Other `draft` fields are their parts.

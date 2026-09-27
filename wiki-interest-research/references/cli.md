@@ -2,6 +2,8 @@
 
 All commands: `scripts/wpv <command> [options]`. Output is a single JSON object on stdout; progress goes to
 stderr. Exit codes: 0 ok, 2 bad arguments, 3 data/resolution problem or rejected narrative, 4 network.
+A network error with `network_blocked: true` means the environment blocks access: allow `wikimedia.org`,
+`www.wikidata.org` and `*.wikipedia.org` (the `hint` says where) instead of retrying.
 
 ## run - create or update a study
 | option | meaning |

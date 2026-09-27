@@ -25,6 +25,12 @@ from .rank import CRITERIA_DOC, WeightsError, parse_weights, rank
 from .resolve import ResolveError, Resolver
 
 MAX_COMBINATIONS = 40
+REQUIRED_DOMAINS = ["wikimedia.org", "www.wikidata.org", "*.wikipedia.org"]
+NETWORK_BLOCKED_HINT = (
+    "This environment blocks the internet access the skill needs. Tell the user to allow these domains and "
+    "start a new conversation: " + ", ".join(REQUIRED_DOMAINS) + ". In the Claude apps (Chat): Settings -> "
+    "Capabilities -> Code execution and file creation -> allowed network domains (on Team/Enterprise plans an "
+    "admin may need to do it). Do not retry until access is allowed.")
 _AGENT_TIPS = {  # extra advice for the agent only (not printed in the report)
     "basket_uneven": " Prefer comparing languages on the same items (run each item as its own --topic).",
     "ambiguous": " See 'topics[].alternatives'; re-run with --topic <QID> if the wrong concept was picked.",
@@ -388,5 +394,10 @@ def main(argv: list[str] | None = None) -> int:
         return emit({"status": "error", "error": str(e),
                      "hint": "Try scripts/wpv resolve --topic ... --langs ... or a Wikidata QID"}, 3)
     except NetworkError as e:
-        return emit({"status": "error", "error": str(e),
-                     "hint": "Network/Wikimedia problem. Wait a minute and retry the same command; cached data is kept."}, 4)
+        msg = str(e)
+        blocked = any(x in msg for x in ("403", "Tunnel connection failed", "Proxy", "proxy",
+                                         "Name or service not known", "nodename nor servname"))
+        hint = (NETWORK_BLOCKED_HINT if blocked else
+                "Network/Wikimedia problem. Wait a minute and retry the same command; cached data is kept. "
+                "If it keeps failing, the environment may block internet access: " + NETWORK_BLOCKED_HINT)
+        return emit({"status": "error", "error": msg, "network_blocked": blocked, "hint": hint}, 4)

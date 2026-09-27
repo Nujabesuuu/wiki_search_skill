@@ -53,17 +53,33 @@ wpv check --study wiki-interest-studies/yoga-de-fr-es-it --answer answer.md   # 
 
 ## Quick start
 
-**Requirements:** Python ≥ 3.11, bash, internet access. No API keys.
+**Requirements:** Python ≥ 3.11, bash and internet access to `wikimedia.org`, `www.wikidata.org` and
+`*.wikipedia.org`. No API keys.
 
+### Claude Code (terminal or the Code tab) — works out of the box
 ```bash
 git clone https://github.com/Nujabesuuu/wiki_search_skill.git
-# use with Claude Code (or any agent that supports Agent Skills)
 cp -r wiki_search_skill/wiki-interest-research ~/.claude/skills/
 ```
+Then just ask, e.g. *"Is interest in astronomy growing on Ukrainian Wikipedia?"*. The first call of
+`scripts/wpv` creates an isolated `.venv` from pinned requirements (numpy, matplotlib, reportlab; about a
+minute); later calls start instantly.
 
-The first call of `scripts/wpv` creates an isolated `.venv` from pinned requirements (numpy, matplotlib,
-reportlab; about a minute); later calls start instantly. The CLI can also be used directly:
+### Claude apps chat (claude.ai, desktop and mobile Chat) — one-time network setup
+1. Zip the `wiki-interest-research` folder (the folder itself must be at the top of the archive; `tests/`
+   and `evals/` are not needed) and upload it in **Settings → Capabilities → Skills**.
+2. On the same page, turn on **Code execution and file creation**.
+3. In its network settings, **allow these domains**: `wikimedia.org`, `www.wikidata.org`,
+   `*.wikipedia.org`. Allowing only these three is safer than allowing all domains.
+4. Start a new chat.
 
+> ⚠️ **This step cannot be automated.** Chat code runs in a sandbox whose internet access is controlled by
+> the user (or, on Team/Enterprise plans, by an admin); a skill cannot grant itself network access, by
+> design. Without the three domains the skill stops with `network_blocked: true` and a message saying what
+> to allow. PyPI access is not required: if packages cannot be installed, the launcher uses the numpy,
+> matplotlib and reportlab already present in the sandbox.
+
+### Command line
 ```bash
 S=wiki_search_skill/wiki-interest-research
 $S/scripts/wpv run --topic "intermittent fasting" --langs pl,cs --months 24
@@ -71,7 +87,7 @@ $S/scripts/wpv run --study wiki-interest-studies/intermittent-fasting-pl-cs --ad
 $S/scripts/wpv --help
 ```
 
-Tests: `cd $S && python3 -m venv .venv && .venv/bin/pip install -r scripts/requirements-dev.txt && .venv/bin/python -m pytest` (104 offline tests).
+Tests: `cd $S && python3 -m venv .venv && .venv/bin/pip install -r scripts/requirements-dev.txt && .venv/bin/python -m pytest`.
 
 ---
 
@@ -180,6 +196,7 @@ and checking moved into code.
 - A language edition is not a country; many people read English Wikipedia instead of their own language.
 - One article per language is a proxy for a whole subject; baskets of articles help (`--topic "label=Q1,Q2"`).
 - Wikimedia's bot filter is imperfect; only obvious desktop-only spikes are detected.
+- In sandboxed chats, network access to Wikipedia must be allowed once (see Quick start).
 - Report labels exist in 7 languages (en, uk, pl, cs, de, es, fr); PDF fonts cover Latin, Cyrillic and Greek.
 
 ## Roadmap
@@ -202,6 +219,6 @@ wiki-interest-research/            the skill (all code and materials)
 ├── scripts/wpv                    launcher (pinned virtualenv on first run)
 ├── scripts/wiki_interest/         resolve, fetch, cache, stats, analyze, rank, draft, verify, report, check
 ├── assets/                        example report image
-├── tests/                         104 offline unit tests
+├── tests/                         offline unit tests
 └── evals/                         scenarios, rubric, objective checks, OpenRouter runner, results
 ```
