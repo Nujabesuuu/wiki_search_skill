@@ -250,18 +250,20 @@ def recommendation_draft(summary: dict, results: list[dict], multi: bool) -> str
                 max(usable, key=lambda r: r["metrics"]["views_avg_month"]))
     name = series_label(best["lang"], best["topic"] if multi else None)
     claim = best["allowed_claims"][0]
-    first = f"Of the compared options, start with {name}. " if len(usable) > 1 else ""
+    several = len(usable) > 1
+    first = f"Of the compared options, start with {name}. " if several else ""
+    there = "there" if several else f"on {name}"
     if best["metrics"]["median_daily_views"] < LOW_VOLUME:
-        return (f"{first}Treat Wikipedia as weak evidence for {name}: the audience is very small. Validate first "
+        return (f"{first}Treat Wikipedia as weak evidence {there}: the audience is very small. Validate first "
                 f"with a direct demand test; this changes only if the test shows clear demand.")
     if best["direction"] == "up":
-        return (f"{first}Interest on {name} is {WORDING[claim]}. Validate first with a small demand test (landing "
+        return (f"{first}Interest {there} is {WORDING[claim]}. Validate first with a small demand test (landing "
                 f"page or survey) before building; this changes if the test fails or the growth does not hold "
                 f"next quarter.")
     if best["direction"] == "flat":
-        return (f"{first}Interest on {name} is roughly stable, so the case rests on audience size, not momentum. "
+        return (f"{first}Interest {there} is roughly stable, so the case rests on audience size, not momentum. "
                 f"Validate first with a small demand test; this changes if the test is weak or interest starts to fall.")
-    return (f"{first}Treat Wikipedia interest on {name} as a headwind: it is {WORDING[claim]}. Go ahead only if a "
+    return (f"{first}Treat Wikipedia interest {there} as a headwind: it is {WORDING[claim]}. Go ahead only if a "
             f"direct demand test is convincing; this changes if the decline levels off in the next 3 months.")
 
 
@@ -391,7 +393,7 @@ def build_draft(summary: dict) -> dict:
         parts = [f"{lang_name(r['lang'])} {_pct(r['metrics']['growth_yoy_pct'])}" if r["confidence"] != "Insufficient"
                  else f"{lang_name(r['lang'])}: too little data" for r in results]
         parts += [f"{lang_name(m['lang'])}: no article" for m in summary["missing"]]
-        headline = (f"Interest in {topic_label} ({'share of each wiki' if several else 'share of wiki'} views, "
+        headline = (f"Interest in {topic_label} ({"share of each wiki's" if several else "share of the wiki's"} views, "
                     f"year over year): " + "; ".join(parts))
         if len(headline) > 240:
             headline = headline[:240].rsplit(";", 1)[0]
