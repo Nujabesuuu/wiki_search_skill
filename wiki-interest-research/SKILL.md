@@ -16,7 +16,8 @@ honestly.** Never compute numbers yourself and never invent them.
 
 `scripts/wpv` below is inside this skill's directory: call it by its absolute path
 (e.g. `/path/to/wiki-interest-research/scripts/wpv`) from the user's working directory, where studies
-and files are created. Every command prints one JSON object.
+and files are created. If it is not executable (e.g. after upload as a zip), run
+`bash /path/to/wiki-interest-research/scripts/wpv ...`. Every command prints one JSON object.
 
 ## Workflow
 
